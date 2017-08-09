@@ -1,0 +1,116 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+    <div class="row top-menu">
+        <div class="col-md-10"></div>
+        <div class="col-md-2 text-right">
+                    </div>
+    </div>
+    <div class="row divider blue">
+        <div class="col-md-12"></div>
+    </div>
+    <div class="row banner main">
+        <div class="col-md-1"></div>
+        <div class="col-md-11 padding-none">
+            <h1>Dashboard</h1>
+        </div>
+    </div>
+
+<div class = 'flash'>
+              {% with messages = get_flashed_messages() %}
+      {% if messages %}
+
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
+    <div class="row padding-top padding-bottom">
+        <div class="col-md-1"></div>
+        <div class="col-md-10 padding-none">
+        <!-- TODO: ADD LINKS TO APPROPRIATE ADD PAGES -->
+                <button class="btn btn-default" id="new-restaurant">
+                    <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Add Activity
+                </button>
+
+
+                <button class="btn btn-default" id="new-restaurant">
+                    <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Add Measurement
+                </button>
+
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
+    <!-- TODO: ADD TABLES OF ALL INFO SORTABLE BY DATE / TYPE -->
+    {% for sleep in sleep_activities %}
+
+            <div class="row">
+                <div class="col-md-1"></div>
+                    <div class="col-md-10 restaurant-list">
+                        <h1>Sleep Activities</h1>
+                        <h3>User: {{sleep.user.name}}</h3>
+                        <p>Fell asleep: {{sleep.start_time}}</p>
+                        <p>Fell asleep: {{sleep.start_time}}</p>
+                        <p>Total sleep duration: {{sleep.duration}}</p>
+                    </div>
+                <div class="col-md-1"></div>
+            </div>
+
+    {% endfor %}
+
+    {% for workout in workout_activities %}
+
+            <div class="row">
+                <div class="col-md-1"></div>
+                    <div class="col-md-10 restaurant-list">
+                        <h1>Workout Activities</h1>
+                        <h3>User: {{workout.user.name}}</h3>
+                        <p>Began workout: {{workout.start_time}}</p>
+                        <p>Finished workout: {{workout.start_time}}</p>
+                        <p>Total workout duration: {{workout.duration}}</p>
+                        <p>Type: {{workout.type}}</p>
+                        <p>Intense? {{workout.intense}}</p>
+                        <p>Light? {{workout.light}}</p>
+                    </div>
+                <div class="col-md-1"></div>
+            </div>
+
+    {% endfor %}
+
+    {% for bp in bp_measurements %}
+
+            <div class="row">
+                <div class="col-md-1"></div>
+                    <div class="col-md-10 restaurant-list">
+                        <h1>BP Measurements</h1>
+                        <h3>User: {{bp.user.name}}</h3>
+                        <p>Time: {{bp.measurement.time_created}}</p>
+                        <p>Blood Pressure: {{bp.systolic}}/{{bp.diastolic}}</p>
+                    </div>
+                <div class="col-md-1"></div>
+            </div>
+
+    {% endfor %}
+
+    {% for weight in weight_measurements %}
+
+            <div class="row">
+                <div class="col-md-1"></div>
+                    <div class="col-md-10 restaurant-list">
+                        <h1>Weight Measurements</h1>
+                        <h3>User: {{weight.user.name}}</h3>
+                        <p>Time: {{weight.measurement.time_created}}</p>
+                        <p>Weight: {{weight.weight}}</p>
+                    </div>
+                <div class="col-md-1"></div>
+            </div>
+
+    {% endfor %}
+
+{% endblock %}
