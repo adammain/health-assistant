@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h1>Add NEW ENTRY</h1>
+<hr>
+
+<!-- TODO: NEW MEAL ENTRY -->
+<h3>New Meal</h3>
+<form action="" method="post" name="">
+    {{ meal_form.hidden_tag() }}
+
+    <p>Date: {{ meal_form.date }}</p>
+    <p>Add Time: {{ meal_form.time }}</p>
+    {{ meal_form.health }}
+    <br>
+    <p>Description:</p>
+    {{ meal_form.description }}
+    <br><br>
+    {{ meal_form.submit_meal }}
+</form>
+<br><br>
+<hr>
+<!-- ERROR MESSAGE CODE: -->
+<!--      {% for error in meal_form.date.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+          {% endfor %} -->
+
+
+<!-- TODO: NEW Sleep ENTRY -->
+<h3>New Sleep</h3>
+<form action="" method="post" name="">
+    {{ sleep_form.hidden_tag() }}
+
+    <p>Date: {{ sleep_form.date }}</p>
+    <p>Add Time: {{ sleep_form.time }}</p>
+
+    <br><br>
+    {{ sleep_form.submit_sleep }}
+</form>
+
+<br><br>
+<hr>
+
+<!-- TODO: NEW Workout ENTRY -->
+<h3>New Workout</h3>
+<form action="" method="post" name="">
+    {{ workout_form.hidden_tag() }}
+
+    <p>Date: {{ workout_form.date }}</p>
+    <p>{{ workout_form.workout_type }}</p>
+    <br>
+    Intensity: {{ workout_form.intensity }}
+    <p>Add Time: {{ workout_form.time }}</p>
+    <br><br>
+    {{ workout_form.submit_workout }}
+</form>
+
+<br><br>
+<hr>
+
+
+<!-- TODO: NEW Weight ENTRY -->
+<h3>New Weight Measurement</h3>
+<form action="" method="post" name="">
+
+    <br><br>
+    <input type="submit">
+
+</form>
+
+<br><br>
+<hr>
+
+<!-- TODO: NEW Blood Pressure ENTRY -->
+<h3>New Blood Pressure Measurement</h3>
+<form action="" method="post" name="">
+
+    <br><br>
+    <input type="submit">
+
+</form>
+
+<br><br>
+<hr>
+
+<!-- TODO: NEW Blood Sugar ENTRY -->
+<h3>New Blood Sugar Measurement</h3>
+<form action="" method="post" name="">
+
+    <br><br>
+    <input type="submit">
+
+</form>
+
+<br><br>
+<hr>
+
+<!-- TODO: NEW Heart Rate ENTRY -->
+<h3>New Heart Rate Measurement</h3>
+<form action="" method="post" name="">
+
+    <br><br>
+    <input type="submit">
+
+</form>
+
+{% endblock %}

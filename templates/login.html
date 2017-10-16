@@ -16,20 +16,17 @@
 
 <!-- GOOGLE PLUS SIGN IN-->
 
-
-<!-- TODO: UPDATE GOOGLE SIGNIN INFO -->
-
-          <div id="signInButton">
-          <span class="g-signin"
-            data-scope="openid email"
-            data-clientid="128958941843-073taplgr03r5canuev0lehu04ek9gnf.apps.googleusercontent.com"
-            data-redirecturi="postmessage"
-            data-accesstype="offline"
-            data-cookiepolicy="single_host_origin"
-            data-callback="signInCallback"
-            data-approvalprompt="force">
-          </span>
-        </div>
+<div id="signInButton">
+  <span class="g-signin"
+    data-scope="openid email"
+    data-clientid="365157182734-ltv8o7v7utn4nhm5kbnf95nhspjcjgk6.apps.googleusercontent.com"
+    data-redirecturi="postmessage"
+    data-accesstype="offline"
+    data-cookiepolicy="single_host_origin"
+    data-callback="signInCallback"
+    data-approvalprompt="force">
+  </span>
+</div>
 
 <div id="result"></div>
 
@@ -52,7 +49,7 @@ function signInCallback(authResult) {
         if (result) {
           $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
          setTimeout(function() {
-          window.location.href = "/restaurant";
+          window.location.href = "/";
          }, 4000);
 
 
@@ -80,11 +77,11 @@ function signInCallback(authResult) {
 <script>
   window.fbAsyncInit = function() {
   FB.init({
-    appId      : '109851813017654',
+    appId      : '882192941946242',
     cookie     : true,  // enable cookies to allow the server to access
                         // the session
     xfbml      : true,  // parse social plugins on this page
-    version    : 'v2.8' // use version 2.8
+    version    : 'v2.10' // use version 2.8
   });
 
   };
@@ -136,15 +133,11 @@ function signInCallback(authResult) {
 
 
 <button>
+  <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
+    <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
+  </fb:login-button>
+</button>
 
-
-          <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
-<a href='javascript:sendTokenToServer()'>Login with Facebook</a>
-
-</fb:login-button>
-
-
-        </button>
 <!--END FACEBOOK SIGN IN -->
 
   </body>

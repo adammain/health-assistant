@@ -1,10 +1,11 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Time, Boolean, Interval
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
+
 
 Base = declarative_base()
 
@@ -18,59 +19,59 @@ class User(Base):
     picture = Column(String(250))
 
 
-class Activity(Base):
-    __tablename__ = 'activity'
+# class Activity(Base):
+#     __tablename__ = 'activity'
 
-    id = Column(Integer, primary_key=True)
-    time_created = Column(DateTime(timezone=True), server_default=func.now())
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+#     id = Column(Integer, primary_key=True)
+#     created = Column(DateTime(timezone=True), server_default=func.now())
+#     name = Column(String(250), nullable=False)
+#     user_id = Column(Integer, ForeignKey('user.id'))
+#     user = relationship(User)
 
-    @property
-    def serialize(self):
-        """Return object data in easily serializeable format"""
-        return {
-            'id': self.id,
-            'time_created': self.time_created
-        }
+#     @property
+#     def serialize(self):
+#         """Return object data in easily serializeable format"""
+#         return {
+#             'id': self.id,
+#             'time_created': self.time_created
+#         }
 
 
-class ActivityItem(Base):
-    __tablename__ = 'activity_item'
+# class ActivityItem(Base):
+#     __tablename__ = 'activity_item'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250))
-    description = Column(String(250))
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
-    activity_id = Column(Integer, ForeignKey('activity.id'))
-    activity = relationship(Activity)
+#     id = Column(Integer, primary_key=True)
+#     name = Column(String(250))
+#     description = Column(String(250))
+#     user_id = Column(Integer, ForeignKey('user.id'))
+#     user = relationship(User)
+#     activity_id = Column(Integer, ForeignKey('activity.id'))
+#     activity = relationship(Activity)
 
-    @property
-    def serialize(self):
-        """Return object data in easily serializeable format"""
-        return {
-            'id': self.id,
-            'name': self.name
-        }
+#     @property
+#     def serialize(self):
+#         """Return object data in easily serializeable format"""
+#         return {
+#             'id': self.id,
+#             'name': self.name
+#         }
 
 
 class Meal(Base):
     __tablename__ = 'meal'
 
     id = Column(Integer, primary_key=True)
+    created = Column(DateTime)
     description = Column(String(250))
-    duration = Column(Integer, nullable=False)
-    start_time = Column(DateTime(timezone=True), server_default=func.now())
-    end_time = Column(DateTime(timezone=True), server_default=func.now())
-    healthy = Column(Boolean)
-    unhealthy = Column(Boolean)
-    starch_rich = Column(Boolean)
-    sucrose_rich = Column(Boolean)
+    duration = Column(Interval, nullable=False)
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
+    healthy = Column(Boolean, default=True)
+    unhealthy = Column(Boolean, default=False)
+    starch_rich = Column(Boolean, default=False)
+    sucrose_rich = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    activity_id = Column(Integer, ForeignKey('activity.id'))
-    activity = relationship(Activity)
 
     @property
     def serialize(self):
@@ -91,13 +92,12 @@ class Sleep(Base):
     __tablename__ = 'sleep'
 
     id = Column(Integer, primary_key=True)
-    duration = Column(Integer, nullable=False)
+    created = Column(DateTime(timezone=True), server_default=func.now())
+    duration = Column(Time, nullable=False)
     start_time = Column(DateTime(timezone=True), server_default=func.now())
     end_time = Column(DateTime(timezone=True), server_default=func.now())
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    activity_id = Column(Integer, ForeignKey('activity.id'))
-    activity = relationship(Activity)
 
     @property
     def serialize(self):
@@ -111,18 +111,16 @@ class Workout(Base):
     __tablename__ = 'workout'
 
     id = Column(Integer, primary_key=True)
-    duration = Column(Integer, nullable=False)
+    created = Column(DateTime(timezone=True), server_default=func.now())
+    duration = Column(Time, nullable=False)
     start_time = Column(DateTime(timezone=True), server_default=func.now())
     end_time = Column(DateTime(timezone=True), server_default=func.now())
-    type = Column(String(250), nullable=True)
     intense = Column(Boolean, nullable=False)
     light = Column(Boolean, nullable=False)
     interval = Column(Boolean, nullable=False)
     endurance = Column(Boolean, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    activity_id = Column(Integer, ForeignKey('activity.id'))
-    activity = relationship(Activity)
 
     @property
     def serialize(self):
@@ -137,61 +135,60 @@ class Workout(Base):
         }
 
 
-class Measurement(Base):
-    __tablename__ = 'measurement'
+# class Measurement(Base):
+#     __tablename__ = 'measurement'
 
-    id = Column(Integer, primary_key=True)
-    time_created = Column(DateTime(timezone=True), server_default=func.now())
-    morning = Column(Boolean, nullable=True)
-    afternoon = Column(Boolean, nullable=True)
-    evening = Column(Boolean, nullable=True)
-    pre_meal = Column(Boolean, nullable=True)
-    post_meal = Column(Boolean, nullable=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+#     id = Column(Integer, primary_key=True)
+#     created = Column(DateTime(timezone=True), server_default=func.now())
+#     morning = Column(Boolean, nullable=True)
+#     afternoon = Column(Boolean, nullable=True)
+#     evening = Column(Boolean, nullable=True)
+#     pre_meal = Column(Boolean, nullable=True)
+#     post_meal = Column(Boolean, nullable=True)
+#     user_id = Column(Integer, ForeignKey('user.id'))
+#     user = relationship(User)
 
-    @property
-    def serialize(self):
-        """Return object data in easily serializeable format"""
-        return {
-            'id': self.id,
-            'time_created': Column(DateTime(timezone=True), server_default=func.now()),
-            'morning': self.morning,
-            'afternoon': self.afternoon,
-            'evening': self.evening,
-            'pre_meal': self.pre_meal,
-            'post_meal': self.post_meal
-        }
+#     @property
+#     def serialize(self):
+#         """Return object data in easily serializeable format"""
+#         return {
+#             'id': self.id,
+#             'time_created': Column(DateTime(timezone=True), server_default=func.now()),
+#             'morning': self.morning,
+#             'afternoon': self.afternoon,
+#             'evening': self.evening,
+#             'pre_meal': self.pre_meal,
+#             'post_meal': self.post_meal
+#         }
 
 
-class MeasurementItem(Base):
-    __tablename__ = 'measurement_item'
+# class MeasurementItem(Base):
+#     __tablename__ = 'measurement_item'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
-    measurement_id = Column(Integer, ForeignKey('measurement.id'))
-    measurement = relationship(Measurement)
+#     id = Column(Integer, primary_key=True)
+#     name = Column(String(250), nullable=True)
+#     user_id = Column(Integer, ForeignKey('user.id'))
+#     user = relationship(User)
+#     measurement_id = Column(Integer, ForeignKey('measurement.id'))
+#     measurement = relationship(Measurement)
 
-    @property
-    def serialize(self):
-        """Return object data in easily serializeable format"""
-        return {
-            'id': self.id,
-            'name': self.name
-        }
+#     @property
+#     def serialize(self):
+#         """Return object data in easily serializeable format"""
+#         return {
+#             'id': self.id,
+#             'name': self.name
+#         }
 
 
 class Weight(Base):
     __tablename__ = 'weight'
 
     id = Column(Integer, primary_key=True)
+    created = Column(DateTime(timezone=True), server_default=func.now())
     weight = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    measurement_id = Column(Integer, ForeignKey('measurement.id'))
-    measurement = relationship(Measurement)
 
     @property
     def serialize(self):
@@ -206,12 +203,11 @@ class BloodPressure(Base):
     __tablename__ = 'blood_pressure'
 
     id = Column(Integer, primary_key=True)
+    created = Column(DateTime(timezone=True), server_default=func.now())
     systolic = Column(Integer, nullable=False)
     diastolic = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    measurement_id = Column(Integer, ForeignKey('measurement.id'))
-    measurement = relationship(Measurement)
 
     @property
     def serialize(self):
@@ -227,12 +223,11 @@ class BloodSugar(Base):
     __tablename__ = 'blood_sugar'
 
     id = Column(Integer, primary_key=True)
+    created = Column(DateTime(timezone=True), server_default=func.now())
     glucose_level = Column(Integer, nullable=False)
     insulin_level = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    measurement_id = Column(Integer, ForeignKey('measurement.id'))
-    measurement = relationship(Measurement)
 
     @property
     def serialize(self):
@@ -249,13 +244,12 @@ class HeartRate(Base):
     __tablename__ = 'heart_rate'
 
     id = Column(Integer, primary_key=True)
+    created = Column(DateTime(timezone=True), server_default=func.now())
     bpm = Column(Integer, nullable=False)
     resting = Column(Boolean, nullable=False)
     active = Column(Boolean, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    measurement_id = Column(Integer, ForeignKey('measurement.id'))
-    measurement = relationship(Measurement)
 
     @property
     def serialize(self):
