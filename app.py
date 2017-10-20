@@ -16,6 +16,8 @@ import time
 from threading import Lock
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
+from flask_moment import Moment
+from flask_util_js import FlaskUtilJs
 from stopwatch import Timer
 from models import Base, User, Meal, Sleep, \
     Workout, Weight, BloodPressure, BloodSugar, HeartRate
@@ -31,14 +33,19 @@ async_mode = None
 app = Flask(__name__)
 app.secret_key = 'tRSKKNtG0%%q'
 
+# JS flask url_for utility
+fujs = FlaskUtilJs(app)
+
 # socketio setup
 socketio = SocketIO(app)
 thread = None
 thread_lock = Lock()
 
-# global timbers dict
+# global timers/date initialization
 timerKey = 0
 timers = {}
+test_timer = Timer()
+moment = Moment(app)
 
 # save sessions on server with flask_sessions ext.
 SESSION_TYPE = 'redis'
@@ -56,11 +63,9 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 db_session = DBSession()
 
-# Global Weekday definition
-W_DAY = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su']
-
-
 # Create anti-forgery state token
+
+
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -303,9 +308,18 @@ def chop_microseconds(delta):
 
 @app.route('/')
 @app.route('/home/')
-def showHome(activity_id=0, cmd=None, year=2017, month=8, day=19):
-    date = datetime.date(year, month, day)
-    # TODO: Add route argument for setting date + date links in template
+def showHome():
+    days = {0: "M", 1: "T", 2: "W", 3: "Th", 4: "F", 5: "S", 6: "Su"}
+    now = datetime.datetime.now()
+    year, month, day = now.year, now.month, now.day
+
+    if 'year' in request.args:
+        year = int(request.args['year'])
+        month = int(request.args['month'])
+        day = int(request.args['day'])
+
+    display_date = datetime.date(year, month, day)
+    current_date = datetime.date(now.year, now.month, now.day)
 
     if 'username' not in session:
         return render_template('publicLanding.html')
@@ -324,24 +338,39 @@ def showHome(activity_id=0, cmd=None, year=2017, month=8, day=19):
         #               ).all()
 
         meals = db_session.query(Meal).filter(
-            func.DATE(Meal.created) == date).all()
+            func.DATE(Meal.created) == display_date).all()
 
         for meal in meals:
             meal.duration = chop_microseconds(meal.duration)
 
         # return "This page will show all my activities and measurements"
-        return render_template('home.html', meals=meals)
+        return render_template('home.html',
+                               meals=meals,
+                               days=days,
+                               display_date=display_date,
+                               display_year=display_date.year,
+                               display_month=display_date.month,
+                               display_day=display_date.day,
+                               current_date=current_date,
+                               current_year=now.year,
+                               current_month=now.month,
+                               current_day=now.day)
 
 
 # TODO: Add new entry (measurement/activity)
 @app.route('/new-entry/', methods=('GET', 'POST'))
-def newEntry():
+@app.route('/new-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
+def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=datetime.datetime.now().day):
     if 'username' not in session:
         return redirect('/login')
 
+    date = datetime.date(year, month, day)
     entry_name = None
     user_id = session.get('user_id')
-    meal_form = MealForm()
+
+    # Request for passing displayed date to form for default value
+    # with app.test_request_context(method='POST'):
+    meal_form = MealForm(request.form, date=date)
     sleep_form = SleepForm()
     workout_form = WorkoutForm()
     weight_form = WeightForm()
@@ -382,11 +411,10 @@ def newEntry():
         table, entry_name = HeartRate, "Heart Rate"
 
     if entry_name is not None:
-        testCreation = db_session.query(table).filter(
-            table.user_id).order_by(table.created.desc()).first()
-
         flash('New %s entry added successfully' % entry_name)
-        return redirect('/home')
+        db_session.commit()
+        # TODO: Add redirect to display date as year/month/day
+        return redirect(url_for('showHome', year=year, month=month, day=day))
 
     # return "This page will show all my activities"
     return render_template('newEntry.html',
@@ -400,7 +428,6 @@ def newEntry():
 
 
 # START of SocketIO implimentation
-
 # Timer thread
 def background_thread(session):
     """Send server generated events to client."""
@@ -415,11 +442,12 @@ def background_thread(session):
         # if active_timer is not None:
         socketio.sleep(0.1)
         if session['active_timer'] is not None:
-            timer = timers[timerKey]
+            timer = timers[session['active_timer']]
+            print("active_timer: " + str(session['active_timer']))
+            print("Timer Object: {}".format(
+                timers[session['active_timer']].runningElapsed))
 
         timer_btn_text = ''
-        print("active_timer: " + str(session['active_timer']))
-
         if timer and timer.running:
             seconds = timer.runningElapsed
             m, s = divmod(seconds, 60)
@@ -428,7 +456,7 @@ def background_thread(session):
             print(time)
             socketio.emit('timer_response',
                           {'data': 'Server generated event',
-                              'count': time, 'active_timer': timerKey},
+                              'count': time, 'active_timer': session['active_timer']},
                           namespace='/timer')
         else:
             thread_live = False
@@ -444,12 +472,12 @@ def activate(message):
 
     # save active timer info to current session
     session['active_timer'] = message['room']
-
+    print("CURRENT ACTIVE TIMER: {}".format(session['active_timer']))
     # get activities current saved time from DB
     meal = db_session.query(Meal).filter(
         Meal.id == session['active_timer']).one()
     start_with_time = meal.duration.total_seconds()
-
+    print("START WITH TIME: {}".format(start_with_time))
     # start timer for activity
     print("Starting Timer...")
     global timerKey
@@ -457,7 +485,7 @@ def activate(message):
     global timers
     timers = {timerKey: Timer()}
     timers[timerKey].start(start_with_time)
-    print(timers[timerKey])
+
     print("Timer STARTED")
     print("activated TIMER: " + str(session['active_timer']))
 
@@ -506,14 +534,20 @@ def deactivate(message):
 # Background thread initiation example:
 @socketio.on('connect', namespace='/timer')
 def test_connect():
+
+    # Have to get session object this way to pass to socketio bg thread
     sessionObject = session._get_current_object()
-    print("SessionTimerID: " + str(sessionObject['active_timer']))
-    print(session._get_current_object)
+
     global thread
     with thread_lock:
         if thread is None:
             thread = socketio.start_background_task(
                 background_thread, session._get_current_object())
+
+    if 'active_timer' not in sessionObject:
+        session['active_timer'] = None
+
+    print("SessionTimerID: " + str(sessionObject['active_timer']))
     emit('connect_response', {'data': 'Connected',
                               'active_timer': sessionObject['active_timer']})
 

@@ -32,6 +32,7 @@ class NewEntry:
         if meal_data.health.data == 'unhealthy':
             healthy_val = 0
             unhealthy_val = 1
+
         newMeal = Meal(
             created=meal_data.date.data,
             description=meal_data.description.data,

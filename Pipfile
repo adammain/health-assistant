@@ -1,0 +1,29 @@
+[[source]]
+
+name = "pypi"
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+
+[dev-packages]
+
+
+
+[packages]
+
+flask = "==0.12.2"
+flask-login = "*"
+flask-session = "*"
+"49b1119" = {path = "/vagrant/fullstack-nd-vm/health-assistant/Flask_SocketIO"}
+itsdangerous = "==0.24"
+"jinja2" = "==2.7.3"
+markupsafe = "==0.23"
+python-engineio = "*"
+python-socketio = "*"
+werkzeug = "==0.12.2"
+sqlalchemy = "*"
+"oauth2client" = "*"
+requests = "*"
+flask-socketio = "*"
+flask-wtf = "*"
+redis = "*"

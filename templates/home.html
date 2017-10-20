@@ -14,34 +14,30 @@
         //     http[s]://<domain>:<port>[/<namespace>]
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
 
-        // TODO: Dynamically generate new rooms for each new entry to match dynamically gen css id's
-
-        room1 = 'timer_1'
-        room2 = 'timer_2'
+        // Dynamically generate new rooms for each new entry to match dynamically gen css id's
         // Event handler for new connections.
         // The callback function is invoked when a connection with the
         // server is established.
         socket.on('connect', function() {
-            // Bug #2: After page refresh, all buttons are reset to 'Start'
-                // Bug #2: TODO #1: On connect, send emit asking for active_timer
-                // Bug #2: TODO #1: If active timer exists, update styling & button
+            // After page refresh, all buttons are reset to 'Start'
+                // On connect, send emit asking for active_timer
+                // If active timer exists, update styling & button
 
             socket.emit('no_server_handler_built_yet', {data: 'I\'m connected!'});
         });
 
-
-        // TODO: IF CLICKED BUTTON IS RUNNING, STOP IT. IF NOT, START IT AND TURN OFF OTHER TIMERS.
-
-        // Bug #2: After page refresh, all buttons are reset to 'Start'
-            // Bug #2: TODO #1: On connect, send emit asking for active_timer
-            // Bug #2: TODO #1: If active timer exists, update styling & button
+        // IF CLICKED BUTTON IS RUNNING, STOP IT. IF NOT, START IT AND TURN OFF OTHER TIMERS.
+        // After page refresh, all buttons are reset to 'Start'
+            // On connect, send emit asking for active_timer
+            // If active timer exists, update styling & button
         $('form#timer').submit(function(event) {
             clickedTimerID = $(this).attr('value');
             clickedButtonA = $('#timer_btn_text_'+clickedTimerID);
             clickedButtonParentList = clickedButtonA.closest('li');
             startClickedTimer = true;
 
-console.log("Clicked Button #", clickedTimerID)
+
+            console.log("Clicked Button #", clickedTimerID)
             console.log("ClickedButtonParentList: ", clickedButtonParentList)
             console.log("clickedButtonA: ", clickedButtonA)
             if (clickedButtonA.hasClass('is-running')) {
@@ -52,7 +48,7 @@ console.log("Clicked Button #", clickedTimerID)
                 clickedButtonA.parentsUntil('div.container').removeClass('is-running')
                 socket.emit('deactivate_timer', {room: $(this).attr('value')});
                 $('#log').append('<br>' + $('<div/>').text('Client Sent Stop Timer Request..' + $(this).attr('value')).html());
-                startClickedTimer = false;  // Clicked timer was running. Stopped it. don't Restart it.
+                startClickedTimer = false;  // Clicked timer was running, stopped. Next time clicked, start.
             } else if (clickedButtonParentList.siblings('li').hasClass('is-running')) {
                 // if another timer is running, stop it
                 runningTimerList = clickedButtonParentList.siblings('li.is-running')
@@ -115,86 +111,142 @@ console.log("Clicked Button #", clickedTimerID)
     });
 </script>
 
-<div class="row banner main">
-    <div class="col-md-11 padding-none">
-        <h1>PRIVATE Dashboard</h1>
-    </div>
-</div>
+<!-- Create navigation for days of week based on selected date -->
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+        let displayDate = moment("{{ display_date }}");
 
-<div class="row padding-top padding-bottom">
-    <div class="col-md-10 padding-none">
-        <a href="{{url_for('newEntry')}}">
-            <button class="btn btn-default" id="new-restaurant">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true">New Entry</span>
-            </button>
+        let monday = moment(displayDate).startOf('isoWeek');
+        let daysOfWeek = [];
+        for (let i = 0; i < 7; i++) {
+            daysOfWeek.push(moment(monday).add(i, 'days'))
+            if (moment(displayDate).isSame(daysOfWeek[i]))
+                console.log("DAYS OF WEEK DATE:", daysOfWeek[i], "DISPLAY DATE:", displayDate)
+            $('ul#day-view-week-nav li a[href='+String(i)+']').prop('href', flask_util.url_for('showHome', {year: daysOfWeek[i].format('YYYY'), month: daysOfWeek[i].format('M'), day: daysOfWeek[i].format('DD')}));
+        }
+    })
+</script>
+
+<header class="row banner main">
+
+    <!-- Title -->
+    <div class="row-fluid title">
+        <div class="col-md-6">
+            <h2>
+                {{ moment(display_date, local=True).format('dddd') }}
+                <span style="color: #888; font-weight: 400">{{ moment(display_date, local=True).format('Do MMM') }}</span>
+            </h2>
+        </div>
+    </div>
+
+    <div>
+        <!-- Days of Week Navigation -->
+        <a id="new-entry" class="btn new-entry-btn" href="{{url_for('newEntry', year = display_year, month = display_month, day = display_day)}}">
+            <span>New</span>
         </a>
+
+        <div class="button-toggle">
+            <a class="btn" href="{{url_for('showHome', year = display_year, month = display_month, day = display_day-1)}}">
+                <i class="fa fa-chevron-left"></i>
+            </a>
+            <a href="{{url_for('showHome', year = current_year, month = current_month, day = current_day)}}">
+                <button type="button" class="btn btn-selected" tabindex="1" title="Jump to Today">
+                    Today
+                </button>
+            </a>
+            <a class="btn" href="{{url_for('showHome', year = display_year, month = display_month, day = display_day+1)}}">
+                <i class="fa fa-chevron-right"></i>
+            </a>
+        </div>
     </div>
-</div>
 
-<!-- TODO: How to change timer based on active/inactive status and correct activity? -->
-{% for meal in meals %}
-    <li class="day-view-entry test-entry-660520049 is-new-entry">
-        <table>
-            <tbody>
-                <tr id="timesheet_day_entry_660520049">
-                    <td>
-                        <div class="entry-info">
-                            <div class="project-client">
-                                <span class="project">{{ meal.id }}: Meal - </span>
-                                <span class="client">
-                                  {% if meal.healthy %}
-                                        Healthy
-                                        <span class="ndash">&nbsp </span>
-                                    {% else %}
-                                        Unhealthy
-                                    {% endif %}
-                                </span>
-                            </div>
-                            <div class="task-notes">
-                                <span class="task">
-                                    {% if meal.started_at %}
-                                        Started at: {{ meal.started_at }}
-                                    {% endif %}
-                                    {% if meal.unhealthy %}
-                                        {% if meal.starch_rich %}
-                                            Starch Rich
-                                        {% elif sucrose_rich %}
-                                            Sucrose Rich
+</header>
+
+<section>
+    <div class="row day-view">
+
+        <ul id="day-view-week-nav" class="day-view-week-nav">
+            {% for day in days %}
+                <li>
+                    <a class="btn" href="{{ day }}" currentDate="{{ current_date }}">{{ days[day] }}</a>
+                </li>
+            {% endfor %}
+            <li>
+                <a class="btn" currentDate="{{ current_date }}">Total</a>
+            </li>
+        </ul>
+
+        <!-- TODO: How to change timer based on active/inactive status and correct activity? -->
+        <ul class="day-view-entry-list">
+            {% for meal in meals %}
+                <li class="day-view-entry card">
+                    <table>
+                        <tbody>
+                            <tr id="timesheet_day_entry_660520049">
+                                <td>
+                                    <div class="entry-info">
+                                        <div class="project-client">
+                                            <span class="project">Meal -
+                                              {% if meal.healthy %}
+                                                    Healthy
+                                                    <span class="ndash">&nbsp </span>
+                                                {% else %}
+                                                    Unhealthy
+                                                {% endif %}
+                                                - ID# {{ meal.id }}
+                                            </span>
+                                        </div>
+                                        <div class="task-notes">
+                                            <span class="task">
+                                                {% if meal.started_at %}
+                                                    Started at: {{ meal.started_at }}
+                                                {% endif %}
+                                                {% if meal.unhealthy %}
+                                                    {% if meal.starch_rich %}
+                                                        Starch Rich
+                                                    {% elif sucrose_rich %}
+                                                        Sucrose Rich
+                                                    {% endif %}
+                                                {% endif %}
+                                            </span>
+                                            {% if meal.description %}
+                                                <span class="notes">
+                                                    <p>
+                                                        <span class="ndash"> – </span>
+                                                        {{ meal.description }}
+                                                    </p>
+                                                </span>
+                                            {% endif %}
+
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="entry-time">
+                                    <!-- TODO: Add dynamic generated id to form for each entry -->
+                                    <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
+                                    <form id="timer" method="POST" action="#" value="{{ meal.id }}">
+                                        <b><span class="ndash"> &nbsp </span><span id="time_{{ meal.id }}">{{ meal.duration }}</span></b>
+                                        <input type="hidden" id="timer_id" name="timer_id" value="{{ meal.id }}">
+                                        {% if current_date == display_date %}
+                                            <button class="btn start-timer-btn" name="timer_btn_{{ meal.id }}" id="timer_btn_{{ meal.id }}" type="submit"><span id="timer_btn_text_{{ meal.id }}">Start</span></button>
                                         {% endif %}
-                                    {% endif %}
-                                </span>
-                                {% if meal.description %}
-                                    <span class="notes">
-                                        <p>
-                                            <span class="ndash"> – </span>
-                                            {{ meal.description }}
-                                        </p>
-                                    </span>
-                                {% endif %}
-
-                            </div>
-                        </div>
-                    </td>
-                    <td class="entry-time">
-                        <!-- TODO: Add dynamic generated id to form for each entry -->
-                        <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
-                        <form id="timer" method="POST" action="#" value="{{ meal.id }}">
-                            <b><span class="ndash"> &nbsp </span><span id="time_{{ meal.id }}">{{ meal.duration }}</span></b>
-                            <input type="hidden" id="timer_id" name="timer_id" value="{{ meal.id }}">
-                            <button name="timer_btn_{{ meal.id }}" id="timer_btn_{{ meal.id }}" type="submit"><span id="timer_btn_text_{{ meal.id }}">Start</span></button>
-                        </form>
-                    </td>
-                    <td class="edit-button do-not-print">
-                        <button class="glyphicon glyphicon-pencil" tabindex="1" title="Edit Entry" type="button">
-                            <i data-icon="edit"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </li>
-{% endfor %}
-    <h2>Receive:</h2>
-    <div id="log"></div>
-
+                                    </form>
+                                </td>
+                                <td class="btn edit-button">
+                                    <a class="fa fa-pencil" tabindex="1" title="Edit Entry" type="button">
+                                        <i data-icon="edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+<section class="log">
+    <h3>Log:</h3>
+    <span id="log"></span>
+</section>
 {% endblock %}
