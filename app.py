@@ -433,53 +433,6 @@ def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().mo
     entry_name = None
     user_id = session.get('user_id')
 
-    # meal_form = MealForm(date=date)
-    # sleep_form = SleepForm(date=date)
-    # workout_form = WorkoutForm(date=date)
-    # weight_form = WeightForm(date=date)
-    # bloodpressure_form = BloodPressureForm(date=date)
-    # bloodsugar_form = BloodSugarForm(date=date)
-    # heartrate_form = HeartRateForm(date=date)
-
-    # if meal_form.submit_meal.data and meal_form.validate_on_submit():
-    #     print("MEAL HELPER CALLED")
-    #     helpers.NewEntry.meal(meal_form)
-    #     table, entry_name = Meal, "Meal"
-
-    # if sleep_form.submit_sleep.data and sleep_form.validate_on_submit():
-    #     print("SLEEP HELPER CALLED")
-    #     helpers.NewEntry.sleep(sleep_form)
-    #     table, entry_name = Sleep, "Sleep"
-
-    # if workout_form.submit_workout.data and workout_form.validate_on_submit():
-    #     print("WORKOUT HELPER CALLED")
-    #     helpers.NewEntry.workout(workout_form)
-    #     table, entry_name = Workout, "Workout"
-
-    # if weight_form.submit_weight.data:
-    #     if weight_form.validate_on_submit():
-    #         print("WEIGHT HELPER CALLED")
-    #         helpers.NewEntry.weight(weight_form)
-    #         table, entry_name = Weight, "Weight"
-    #     else:
-    #         for fieldName, errorMessages in weight_form.errors.items():
-    #             print("FIELD: {}".format(fieldName))
-    #             for err in errorMessages:
-    #                 print("ERROR MESSAGE: {}".format(err))
-    #         return jsonify({'test': request.form})
-
-    # if bloodpressure_form.submit_bloodpressure.data and bloodpressure_form.validate_on_submit():
-    #     helpers.NewEntry.blood_pressure(bloodpressure_form)
-    #     table, entry_name = BloodPressure, "Blood Pressure"
-
-    # if bloodsugar_form.submit_bloodsugar.data and bloodsugar_form.validate_on_submit():
-    #     helpers.NewEntry.blood_sugar(bloodsugar_form)
-    #     table, entry_name = BloodSugar, "Blood Sugar"
-
-    # if heartrate_form.submit_heartrate.data and heartrate_form.validate_on_submit():
-    #     helpers.NewEntry.heart_rate(heartrate_form)
-    #     table, entry_name = HeartRate, "Heart Rate"
-
     forms, forms_submit_checks = getForms(opts=date)
 
     # Runs after forms are submitted, checks validity, submits form to helper
@@ -513,14 +466,6 @@ def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().m
     if 'username' not in session:
         return redirect('/login')
 
-    # meal_form = MealForm()
-    # sleep_form = SleepForm()
-    # workout_form = WorkoutForm()
-    # weight_form = WeightForm()
-    # bloodpressure_form = BloodPressureForm()
-    # bloodsugar_form = BloodSugarForm()
-    # heartrate_form = HeartRateForm()
-
     current_date = datetime.date(year, month, day)
     entry_name = None
     user_id = session.get('user_id')
@@ -531,32 +476,6 @@ def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().m
         day = request.args['day']
     if 'id' in request.args and request.method == 'POST':
         id = request.args['id']
-
-    # if meal_form.submit_meal.data and meal_form.validate_on_submit():
-    #     print("MEAL HELPER CALLED")
-    #     helpers.EditEntry.meal(meal_form, id)
-    #     table, entry_name = Meal, "Meal"
-    # elif sleep_form.submit_sleep.data and sleep_form.validate_on_submit():
-    #     print("SLEEP HELPER CALLED")
-    #     helpers.EditEntry.sleep(sleep_form, id)
-    #     table, entry_name = Sleep, "Sleep"
-    # elif workout_form.submit_workout.data and workout_form.validate_on_submit():
-    #     print("WORKOUT HELPER CALLED")
-    #     helpers.EditEntry.workout(workout_form, id)
-    #     table, entry_name = Workout, "Workout"
-    # elif weight_form.submit_weight.data and weight_form.validate_on_submit():
-    #     print("WEIGHT HELPER CALLED")
-    #     helpers.EditEntry.weight(weight_form, id)
-    #     table, entry_name = Weight, "Weight"
-    # elif bloodpressure_form.submit_bloodpressure.data and bloodpressure_form.validate_on_submit():
-    #     helpers.EditEntry.blood_pressure(bloodpressure_form, id)
-    #     table, entry_name = BloodPressure, "Blood Pressure"
-    # elif bloodsugar_form.submit_bloodsugar.data and bloodsugar_form.validate_on_submit():
-    #     helpers.EditEntry.blood_sugar(bloodsugar_form, id)
-    #     table, entry_name = BloodSugar, "Blood Sugar"
-    # elif heartrate_form.submit_heartrate.data and heartrate_form.validate_on_submit():
-    #     helpers.EditEntry.heart_rate(heartrate_form, id)
-    #     table, entry_name = HeartRate, "Heart Rate"
 
     forms, forms_submit_checks = getForms()
 
