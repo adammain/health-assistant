@@ -1,6 +1,7 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Time, Boolean, Interval
+from sqlalchemy import Column, ForeignKey, Integer, String, \
+    DateTime, Time, Boolean, Interval
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -17,44 +18,6 @@ class User(Base):
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
     picture = Column(String(250))
-
-
-# class Activity(Base):
-#     __tablename__ = 'activity'
-
-#     id = Column(Integer, primary_key=True)
-#     created = Column(DateTime(timezone=True), server_default=func.now())
-#     name = Column(String(250), nullable=False)
-#     user_id = Column(Integer, ForeignKey('user.id'))
-#     user = relationship(User)
-
-#     @property
-#     def serialize(self):
-#         """Return object data in easily serializeable format"""
-#         return {
-#             'id': self.id,
-#             'time_created': self.time_created
-#         }
-
-
-# class ActivityItem(Base):
-#     __tablename__ = 'activity_item'
-
-#     id = Column(Integer, primary_key=True)
-#     name = Column(String(250))
-#     description = Column(String(250))
-#     user_id = Column(Integer, ForeignKey('user.id'))
-#     user = relationship(User)
-#     activity_id = Column(Integer, ForeignKey('activity.id'))
-#     activity = relationship(Activity)
-
-#     @property
-#     def serialize(self):
-#         """Return object data in easily serializeable format"""
-#         return {
-#             'id': self.id,
-#             'name': self.name
-#         }
 
 
 class Meal(Base):
@@ -137,52 +100,6 @@ class Workout(Base):
         }
 
 
-# class Measurement(Base):
-#     __tablename__ = 'measurement'
-
-#     id = Column(Integer, primary_key=True)
-#     created = Column(DateTime(timezone=True), server_default=func.now())
-#     morning = Column(Boolean, nullable=True)
-#     afternoon = Column(Boolean, nullable=True)
-#     evening = Column(Boolean, nullable=True)
-#     pre_meal = Column(Boolean, nullable=True)
-#     post_meal = Column(Boolean, nullable=True)
-#     user_id = Column(Integer, ForeignKey('user.id'))
-#     user = relationship(User)
-
-#     @property
-#     def serialize(self):
-#         """Return object data in easily serializeable format"""
-#         return {
-#             'id': self.id,
-#             'time_created': Column(DateTime(timezone=True), server_default=func.now()),
-#             'morning': self.morning,
-#             'afternoon': self.afternoon,
-#             'evening': self.evening,
-#             'pre_meal': self.pre_meal,
-#             'post_meal': self.post_meal
-#         }
-
-
-# class MeasurementItem(Base):
-#     __tablename__ = 'measurement_item'
-
-#     id = Column(Integer, primary_key=True)
-#     name = Column(String(250), nullable=True)
-#     user_id = Column(Integer, ForeignKey('user.id'))
-#     user = relationship(User)
-#     measurement_id = Column(Integer, ForeignKey('measurement.id'))
-#     measurement = relationship(Measurement)
-
-#     @property
-#     def serialize(self):
-#         """Return object data in easily serializeable format"""
-#         return {
-#             'id': self.id,
-#             'name': self.name
-#         }
-
-
 class Weight(Base):
     __tablename__ = 'weight'
 
@@ -262,73 +179,6 @@ class HeartRate(Base):
             'resting': self.resting,
             'active': self.active
         }
-
-
-#         }
-
-    # class WorkTime(Base):
-    #     __tablename__ = 'work_time'
-
-    #     name = Column(String(80), nullable=False)
-    #     id = Column(Integer, primary_key=True)
-    #     description = Column(String(250))
-    #     price = Column(String(8))
-    #     course = Column(String(250))
-    #     user_id = Column(Integer, ForeignKey('user.id'))
-    #     user = relationship(User)
-
-    #     @property
-    #     def serialize(self):
-    #         """Return object data in easily serializeable format"""
-    #         return {
-    #             'name': self.name,
-    #             'description': self.description,
-    #             'id': self.id,
-    #             'price': self.price,
-    #             'course': self.course,
-    #         }
-
-    # class Workouts(Base):
-    #     __tablename__ = 'workout'
-
-    #     name = Column(String(80), nullable=False)
-    #     id = Column(Integer, primary_key=True)
-    #     description = Column(String(250))
-    #     price = Column(String(8))
-    #     course = Column(String(250))
-
-    #     @property
-    #     def serialize(self):
-    #         """Return object data in easily serializeable format"""
-    #         return {
-    #             'name': self.name,
-    #             'description': self.description,
-    #             'id': self.id,
-    #             'price': self.price,
-    #             'course': self.course,
-    #         }
-
-    # class Recipes(Base):
-    #     __tablename__ = 'recipe'
-
-    #     name = Column(String(80), nullable=False)
-    #     id = Column(Integer, primary_key=True)
-    #     description = Column(String(250))
-    #     price = Column(String(8))
-    #     course = Column(String(250))
-    #     restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
-    #     restaurant = relationship(Restaurant)
-
-    #     @property
-    #     def serialize(self):
-    #         """Return object data in easily serializeable format"""
-    #         return {
-    #             'name': self.name,
-    #             'description': self.description,
-    #             'id': self.id,
-    #             'price': self.price,
-    #             'course': self.course,
-    #         }
 
 
 engine = create_engine('sqlite:///healthdata.db')

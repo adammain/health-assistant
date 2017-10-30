@@ -3,17 +3,14 @@ import json
 import sys
 
 print("Running Endpoint Tester....\n")
-# address = raw_input(
-#     "Please enter the address of the server you want to access, \n If left blank the connection will be set to 'http://localhost:5000':   ")
-address = ''
-if address == '':
-    address = 'http://localhost:5001'
+address = 'http://localhost:5001'
 
 
 # # Making a POST Request
 print("Making a Meal POST request to /activities...")
 try:
-    url = address + "/activities?type=meal&user_id=1&description=Snickers&duration=0:30&healthy=False&unhealthy=True&starch_rich=False&sucrose_rich=True"
+    url = address
+    + "/activities?type=meal&user_id=1&description=Snickers&duration=0:30&healthy=False&unhealthy=True&starch_rich=False&sucrose_rich=True"
     activity_type = 'meal'
     user_id = 1
     h = httplib2.Http()
@@ -67,11 +64,13 @@ except Exception as err:
     print(err.args)
     sys.exit()
 else:
-    print("Test 3 PASS: Succesfully Made GET Request to /activities/user_id/activity_type/activity_id")
+    print("Test 3 PASS: Succesfully Made GET Request to \
+        /activities/user_id/activity_type/activity_id")
 
 
 # # Making a PUT Request
-print("Making a Meal description PUT request to /activities/user_id/activity_type/activity_id/ ")
+print("Making a Meal description PUT request to \
+    /activities/user_id/activity_type/activity_id/ ")
 
 try:
     userID = user_id
@@ -93,11 +92,13 @@ except Exception as err:
     print(err.args)
     sys.exit()
 else:
-    print("Test 4 PASS: Succesfully Made PUT Request to /activities/user_id/activity_type/activity_id/")
+    print("Test 4 PASS: Succesfully Made PUT Request to \
+        /activities/user_id/activity_type/activity_id/")
 
 
 # # Making a DELETE Request
-print("Making DELETE requests to /activities/user_id/activity_type/activity_id ... ")
+print("Making DELETE requests to \
+    /activities/user_id/activity_type/activity_id ... ")
 
 try:
     userID = userID
@@ -116,5 +117,6 @@ except Exception as err:
     print(err.args)
     sys.exit()
 else:
-    print("Test 5 PASS: Succesfully Made DELETE Request to /activities/user_id/activity_type/activity_id")
+    print("Test 5 PASS: Succesfully Made DELETE Request to \
+        /activities/user_id/activity_type/activity_id")
     print("ALL TESTS PASSED!!")

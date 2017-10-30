@@ -1,5 +1,5 @@
-from flask import Flask, Response, render_template, request, redirect, jsonify, \
-    Markup, url_for, flash, session
+from flask import Flask, Response, render_template, request, redirect, \
+    jsonify, Markup, url_for, flash, session
 from sqlalchemy import Date, create_engine, asc, desc, func, cast
 from sqlalchemy.orm import sessionmaker
 from flask_session import Session
@@ -92,29 +92,44 @@ def getUserID(email):
 
 # Helper function: Return all DB entries for user
 def getAllDB(user_id, date):
-    meals = db_session.query(Meal).filter(
-        func.DATE(Meal.created) == date).filter_by(user_id=user_id).all()
+    meals = db_session.query(Meal)
+    .filter(func.DATE(Meal.created) == date)
+    .filter_by(user_id=user_id)
+    .all()
 
-    sleep = db_session.query(Sleep).filter(
-        func.DATE(Sleep.created) == date).filter_by(user_id=user_id).all()
+    sleep = db_session.query(Sleep)
+    .filter(func.DATE(Sleep.created) == date)
+    .filter_by(user_id=user_id)
+    .all()
 
-    workouts = db_session.query(Workout).filter(
-        func.DATE(Workout.created) == date).filter_by(user_id=user_id).all()
+    workouts = db_session.query(Workout)
+    .filter(func.DATE(Workout.created) == date)
+    .filter_by(user_id=user_id)
+    .all()
 
-    weights = db_session.query(Weight).filter(
-        func.DATE(Weight.created) == date).filter_by(user_id=user_id).all()
+    weights = db_session.query(Weight)
+    .filter(func.DATE(Weight.created) == date)
+    .filter_by(user_id=user_id)
+    .all()
 
-    bloodpressure = db_session.query(BloodPressure).filter(
-        func.DATE(BloodPressure.created) == date).filter_by(user_id=user_id).all()
+    bloodpressure = db_session.query(BloodPressure)
+    .filter(func.DATE(BloodPressure.created) == date)
+    .filter_by(user_id=user_id)
+    .all()
 
-    bloodsugar = db_session.query(BloodSugar).filter(
-        func.DATE(BloodSugar.created) == date).filter_by(user_id=user_id).all()
+    bloodsugar = db_session.query(BloodSugar)
+    .filter(func.DATE(BloodSugar.created) == date)
+    .filter_by(user_id=user_id)
+    .all()
 
-    heartrate = db_session.query(HeartRate).filter(
-        func.DATE(HeartRate.created) == date).filter_by(user_id=user_id).all()
+    heartrate = db_session.query(HeartRate)
+    .filter(func.DATE(HeartRate.created) == date)
+    .filter_by(user_id=user_id)
+    .all()
 
-    entries = {'meals': meals, 'sleep': sleep, 'workouts': workouts, 'weights': weights,
-               'bloodpressure': bloodpressure, 'bloodsugar': bloodsugar, 'heartrate': heartrate}
+    entries = {'meals': meals, 'sleep': sleep, 'workouts': workouts,
+               'weights': weights, 'bloodpressure': bloodpressure,
+               'bloodsugar': bloodsugar, 'heartrate': heartrate}
 
     return entries
 
@@ -129,11 +144,18 @@ def getForms(date=None):
     bloodsugar_form = BloodSugarForm(date=date)
     heartrate_form = HeartRateForm(date=date)
 
-    forms = {'meal': meal_form, 'sleep': sleep_form, 'workout': workout_form, 'weight': weight_form,
-             'blood_pressure': bloodpressure_form, 'blood_sugar': bloodsugar_form, 'heart_rate': heartrate_form}
+    forms = {'meal': meal_form, 'sleep': sleep_form, 'workout': workout_form,
+             'weight': weight_form, 'blood_pressure': bloodpressure_form,
+             'blood_sugar': bloodsugar_form, 'heart_rate': heartrate_form}
 
-    forms_submit_checks = {'meal': meal_form.submit_meal, 'sleep': sleep_form.submit_sleep, 'workout': workout_form.submit_workout,
-                           'weight': weight_form.submit_weight, 'blood_pressure': bloodpressure_form.submit_bloodpressure, 'blood_sugar': bloodsugar_form.submit_bloodsugar, 'heart_rate': heartrate_form.submit_heartrate}
+    forms_submit_checks = {'meal': meal_form.submit_meal,
+                           'sleep': sleep_form.submit_sleep,
+                           'workout': workout_form.submit_workout,
+                           'weight': weight_form.submit_weight,
+                           'blood_pressure':
+                           bloodpressure_form.submit_bloodpressure,
+                           'blood_sugar': bloodsugar_form.submit_bloodsugar,
+                           'heart_rate': heartrate_form.submit_heartrate}
 
     return forms, forms_submit_checks
 
@@ -192,7 +214,8 @@ def fbconnect():
         print("BROKEN ACCESS TOKEN")
         if 'access_token' not in session:
             flash(
-                "Error logging in with provider.  Please clear broswer cache and reattempt.")
+                "Error logging in with provider.  \
+                Please clear broswer cache and reattempt.")
             return render_template('login.html')
         else:
             print("USING SAVED ACCESS TOKEN")
@@ -219,10 +242,9 @@ def fbconnect():
 
     # Use token to get user info from API
     # make API call with new token
-    url = 'https://graph.facebook.com/v2.9/me?%s&fields=name,id,email,picture' % token
-
-   # new: put the "picture" here, it is now part of the default
-   # "public_profile"
+    url =
+    'https://graph.facebook.com/v2.9/me?%s&fields=name,id,email,picture' \
+        % token
 
     h = httplib2.Http()
     result = h.request(url, 'GET')[1].decode('utf-8')
@@ -323,8 +345,9 @@ def gconnect():
     stored_access_token = session.get('access_token')
     stored_gplus_id = session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'),
+            200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -357,7 +380,8 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += session.get('picture')
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px; \
+    -webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("You are now logged in as %s" % session.get('username'))
     print("done!")
     return output
@@ -432,8 +456,11 @@ def showHome():
 
 # Add new DB Entry
 @app.route('/new-entry/', methods=('GET', 'POST'))
-@app.route('/new-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
-def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=datetime.datetime.now().day):
+@app.route('/new-entry/<int:year>/<int:month>/<int:day>',
+           methods=('GET', 'POST'))
+def newEntry(year=datetime.datetime.now().year,
+             month=datetime.datetime.now().month,
+             day=datetime.datetime.now().day):
     if 'username' not in session:
         return redirect('/login')
 
@@ -469,8 +496,11 @@ def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().mo
 
 # Edit existing DB entry
 @app.route('/edit-entry/', methods=('GET', 'POST'))
-@app.route('/edit-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
-def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=datetime.datetime.now().day):
+@app.route('/edit-entry/<int:year>/<int:month>/<int:day>',
+           methods=('GET', 'POST'))
+def editEntry(year=datetime.datetime.now().year,
+              month=datetime.datetime.now().month,
+              day=datetime.datetime.now().day):
     if 'username' not in session:
         return redirect('/login')
 
@@ -512,7 +542,8 @@ def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().m
 
 # Delete existing DB entry
 @app.route('/delete-entry/', methods=('GET', 'POST'))
-@app.route('/delete-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
+@app.route('/delete-entry/<int:year>/<int:month>/<int:day>',
+           methods=('GET', 'POST'))
 def deleteEntry(id=None):
     if 'username' not in session:
         return redirect('/login')
@@ -558,10 +589,14 @@ def deleteEntry(id=None):
             db_session.commit()
 
         flash('%s entry successfully deleted.' % type.title())
-        return redirect(url_for('showHome', year=int(request.args['year']), month=int(request.args['month']), day=int(request.args['day'])))
+        return redirect(url_for('showHome', year=int(request.args['year']),
+                                month=int(request.args['month']),
+                                day=int(request.args['day'])))
 
     flash('Failed to delete entry. Please attempt again.')
-    return redirect(url_for('showHome', year=int(request.args['year']), month=int(request.args['month']), day=int(request.args['day'])))
+    return redirect(url_for('showHome', year=int(request.args['year']),
+                            month=int(request.args['month']),
+                            day=int(request.args['day'])))
 
 
 # # START of SocketIO implimentation
@@ -579,7 +614,8 @@ def background_thread(session):
         # if active_timer is not None:
         socketio.sleep(1)
 
-        if session['active_timer'] is not None and timers[session['active_timer']].running:
+        if session['active_timer'] is not None
+        and timers[session['active_timer']].running:
             timer = timers[session['active_timer']]
 
         timer_btn_text = ''
@@ -590,7 +626,8 @@ def background_thread(session):
             time = "%d:%02d" % (h, m)
             socketio.emit('timer_response',
                           {'data': 'Server generated event',
-                              'count': time, 'active_timer': session['active_timer']},
+                              'count': time,
+                              'active_timer': session['active_timer']},
                           namespace='/timer')
         else:
             thread_live = False
@@ -612,8 +649,9 @@ def activate(message):
     print("PREPARING TO ACTIVATE TIMER: {}".format(session['active_timer']))
     print("TIME DETAILS: {}".format(message))
 
-    models = {'meal': Meal, 'sleep': Sleep, 'workout': Workout, 'weight': Weight,
-              'bloodpressure': BloodPressure, 'bloodsugar': BloodSugar, 'heartrate': HeartRate}
+    models = {'meal': Meal, 'sleep': Sleep, 'workout':
+              Workout, 'weight': Weight, 'bloodpressure': BloodPressure,
+              'bloodsugar': BloodSugar, 'heartrate': HeartRate}
 
     for key, model in models.items():
         if key == message['type']:
@@ -669,8 +707,10 @@ def deactivate(message):
     # Save timer info to db
     print("Activity: {}".format(message['type']))
 
-    models = {'meal': Meal, 'sleep': Sleep, 'workout': Workout, 'weight': Weight,
-              'bloodpressure': BloodPressure, 'bloodsugar': BloodSugar, 'heartrate': HeartRate}
+    models = {'meal': Meal, 'sleep': Sleep,
+              'workout': Workout, 'weight': Weight,
+              'bloodpressure': BloodPressure,
+              'bloodsugar': BloodSugar, 'heartrate': HeartRate}
 
     for key, model in models.items():
         if key == message['type']:
