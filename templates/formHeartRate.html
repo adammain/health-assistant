@@ -1,0 +1,59 @@
+<li class="day-view-entry card">
+    <table>
+        <tbody>
+            <tr id="timesheet">
+                <td>
+                    <div class="entry-info">
+                        <div class="project-client">
+                            <span class="project">
+                                <strong>Heart Rate </strong> Measurement
+                            </span>
+                        </div>
+                        <div class="task-notes">
+                            <span class="task">
+                                <strong>ID:</strong> {{ heartrate.id }}
+                                {% if heartrate.resting %}
+                                    <strong>Type:</strong> Resting
+                                    <span class="ndash">&nbsp</span>-<span class="ndash">&nbsp</span>
+                                    <strong>BPM: </strong> {{ heartrate.bpm }}
+                                {% else %}
+                                    <strong>Type:</strong> Active
+                                    <span class="ndash">&nbsp</span>-<span class="ndash">&nbsp</span>
+                                    <strong>BPM: </strong> {{ heartrate.active }}
+                                {% endif %}
+                            </span>
+                            {% if heartrate.description %}
+                                <span class="notes">
+                                    <p>
+                                        <span class="ndash"> Description: </span>
+                                        {{ heartrate.description }}
+                                    </p>
+                                </span>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </td>
+                <td class="entry-time">
+                    <!-- TODO: Add dynamic generated id to form for each entry -->
+                    <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
+                    <form id="timer" method="POST" action="#" type="heartrate" value="{{ heartrate.id }}">
+                        <b><span class="ndash"> &nbsp </span><span id="heartrate{{ heartrate.id }}">{{ heartrate.bpm }} BPM </span></b>
+                    </form>
+                </td>
+                <td id="btn_heartrate{{ heartrate.id }}" class="btn edit-button"
+                    data-toggle="modal"
+                    data-target="#editHeartRateModal"
+                    data-activity-id="{{ heartrate.id }}"
+                    data-activity-date="{{ display_date }}"
+                    data-activity-bpm="{{ heartrate.bpm}}"
+                    data-activity-resting="{{ heartrate.resting }}"
+                    data-activity-active="{{ heartrate.active }}">
+                    <a class="fa fa-pencil" tabindex="1" title="Edit Entry">
+                        <i data-icon="edit"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</li>

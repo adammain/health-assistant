@@ -1,0 +1,64 @@
+<!-- Edit Meal Bootstrap Modal -->
+<div class="modal fade" id="editMealModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+            <h5 class="modal-title title" id="editModalLabel">Edit entry</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-entry" name="edit-entry" action="{{url_for('editEntry', year = display_year, month = display_month, day = display_day)}}" method="POST">
+            {{ meal_form.hidden_tag() }}
+            <div class="form-group">
+                <label for="date">Date</label>
+                <p id="modal-date"></p>
+
+            </div>
+            <div class="form-group">
+                <label for="time">Time</label>
+                <p id="modal-time"></p>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="health">Health Status: </label>
+                <select class="btn select-health" id="health" name="health">
+                    <option value="healthy">Healthy</option>
+                    <option value="unhealthy">Unhealthy</option>
+                </select>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="description">Description: </label>
+                <textarea id="description" name="description"></textarea>
+            </div>
+            <div class="checkbox form-group">
+                <label for="description">Starchy: </label>
+                <input id="starch_rich" name="starch_rich" type="checkbox" value="y">
+            </div>
+            <br>
+            <div class="checkbox form-group">
+                <label for="description">Sucrose Rich (Simple Sugars): </label>
+                <input id="sucrose_rich" name="sucrose_rich" type="checkbox" value="y">
+            </div>
+            <br><br>
+            <div class="modal-footer">
+                <span>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{ meal_form.submit_meal(class="btn submit-btn") }}
+                </span>
+            </div>
+        </form>
+        <form action="#" class="confirm-delete" method="POST">
+            <div id="initial-delete">
+                <a id="delete-meal-entry" href="#">
+                    Delete
+                    <span class="fa fa-trash"></span>
+                </a>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

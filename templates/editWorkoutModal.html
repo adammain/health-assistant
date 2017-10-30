@@ -1,0 +1,55 @@
+<div class="modal fade" id="editWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+            <h5 class="modal-title title" id="editModalLabel">Edit entry: {{ display_date }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-entry" name="edit-entry" action="{{url_for('editEntry', year = display_year, month = display_month, day = display_day)}}" method="POST">
+            {{ workout_form.hidden_tag() }}
+            <div class="form-group">
+                <label for="date">Date</label>
+                <p id="modal-date"></p>
+            </div>
+            <div class="form-group">
+                <label for="time">Time</label>
+                <p id="modal-time"></p>
+            </div>
+            <h4><strong>Type:</strong></h4>
+            <div class="checkbox form-group">
+                <label for="workout_type-0">Interval (HIIT) </label>
+                <input id="workout_type-0" name="workout_type" type="radio" value="interval">
+                <label for="workout_type-1">Endurance Cardio </label>
+                <input id="workout_type-1" name="workout_type" type="radio" value="endurance">
+            </div>
+            <h3><strong>Intensity Level:</strong></h3>
+            <div class="checkbox form-group">
+                <label for="intensity-0">Intense </label>
+                <input id="intensity-0" name="intensity" type="radio" value="intense">
+                <label for="intensity-1">Light </label>
+                <input id="intensity-1" name="intensity" type="radio" value="light">
+            </div>
+            <br>
+            <br><br>
+            <div class="modal-footer">
+                <span>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{ workout_form.submit_workout(class="btn submit-btn") }}
+                </span>
+            </div>
+        </form>
+        <form action="#" class="confirm-delete" method="POST">
+            <div id="initial-delete">
+                <a id="delete-workout-entry" href="#">
+                    Delete
+                    <span class="fa fa-trash"></span>
+                </a>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

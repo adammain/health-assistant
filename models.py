@@ -92,10 +92,10 @@ class Sleep(Base):
     __tablename__ = 'sleep'
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime(timezone=True), server_default=func.now())
-    duration = Column(Time, nullable=False)
-    start_time = Column(DateTime(timezone=True), server_default=func.now())
-    end_time = Column(DateTime(timezone=True), server_default=func.now())
+    created = Column(DateTime)
+    duration = Column(Interval, nullable=False)
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
@@ -104,6 +104,7 @@ class Sleep(Base):
         """Return object data in easily serializeable format"""
         return {
             'id': self.id,
+            'duration': self.duration
         }
 
 
@@ -111,14 +112,14 @@ class Workout(Base):
     __tablename__ = 'workout'
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime(timezone=True), server_default=func.now())
-    duration = Column(Time, nullable=False)
-    start_time = Column(DateTime(timezone=True), server_default=func.now())
-    end_time = Column(DateTime(timezone=True), server_default=func.now())
-    intense = Column(Boolean, nullable=False)
-    light = Column(Boolean, nullable=False)
-    interval = Column(Boolean, nullable=False)
-    endurance = Column(Boolean, nullable=False)
+    created = Column(DateTime)
+    duration = Column(Interval, nullable=False)
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
+    intense = Column(Boolean, default=False)
+    light = Column(Boolean, default=True)
+    interval = Column(Boolean, default=False)
+    endurance = Column(Boolean, default=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
@@ -127,6 +128,7 @@ class Workout(Base):
         """Return object data in easily serializeable format"""
         return {
             'id': self.id,
+            'duration': self.duration,
             'type': self.type,
             'intense': self.intense,
             'light': self.light,
@@ -185,7 +187,7 @@ class Weight(Base):
     __tablename__ = 'weight'
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    created = Column(DateTime)
     weight = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
@@ -203,7 +205,7 @@ class BloodPressure(Base):
     __tablename__ = 'blood_pressure'
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    created = Column(DateTime)
     systolic = Column(Integer, nullable=False)
     diastolic = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
@@ -223,7 +225,7 @@ class BloodSugar(Base):
     __tablename__ = 'blood_sugar'
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    created = Column(DateTime)
     glucose_level = Column(Integer, nullable=False)
     insulin_level = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
@@ -244,7 +246,7 @@ class HeartRate(Base):
     __tablename__ = 'heart_rate'
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    created = Column(DateTime)
     bpm = Column(Integer, nullable=False)
     resting = Column(Boolean, nullable=False)
     active = Column(Boolean, nullable=False)

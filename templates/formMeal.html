@@ -1,0 +1,82 @@
+<li class="day-view-entry card">
+    <table>
+        <tbody>
+            <tr id="timesheet">
+                <td>
+                    <div class="entry-info">
+                        <div class="project-client">
+                            <span class="project">
+                                <strong>Meal</strong>
+                            </span>
+                        </div>
+                        <div class="task-notes">
+                            <span class="task">
+                                <strong>ID:</strong> {{ meal.id }}
+                                <span class="ndash">&nbsp</span>-<span class="ndash">&nbsp</span>
+                                {% if meal.started_at %}
+                                    Started at: {{ meal.started_at }}
+                                {% endif %}
+
+                                {% if meal.healthy %}
+                                    {% set health = "healthy" %}
+                                    <strong>Healthy</strong>
+                                {% else %}
+                                    {% set health = "unhealthy" %}
+                                    <strong>Unhealthy</strong>
+                                {% endif %}
+
+                                {% if health == "unhealthy" %}
+                                <span class="ndash">&nbsp</span>-<span class="ndash">&nbsp</span>
+                                    {% if meal.starch_rich %}
+                                        <strong>Reason:</strong> Starch Rich
+                                    {% elif meal.sucrose_rich %}
+                                        <strong>Reason:</strong> Sucrose Rich (Simple Sugars)
+                                    {% endif %}
+                                {% endif %}
+                            </span>
+                            {% if meal.description %}
+                                <span class="notes">
+                                    <p>
+                                        <span class="ndash"> Description: </span>
+                                        {{ meal.description }}
+                                    </p>
+                                </span>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </td>
+                <td class="entry-time">
+                    <!-- TODO: Add dynamic generated id to form for each entry -->
+                    <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
+                    <form id="timer" method="POST" action="#" type="meal" value="{{ meal.id }}">
+                        <b><span class="ndash"> &nbsp </span><span id="time_meal{{ meal.id }}">{{ meal.duration|hour_min }}</span></b>
+                        <input type="hidden" id="timer_id" name="timer_id" value="{{ meal.id }}">
+                        {% if current_date == display_date %}
+                            <button class="btn start-timer-btn" name="timer_btn_meal{{ meal.id }}" id="timer_btn_meal{{ meal.id }}" type="submit">
+                                <svg class="icon-timer" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <circle class="icon-timer-face" cx="11" cy="11" r="10" stroke-width="2"></circle>
+                                <path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z"></path>
+                                </svg>
+                                <span id="timer_btn_text_meal{{ meal.id }}">Start</span></button>
+                        {% endif %}
+                    </form>
+                </td>
+                <td id="time_btn_meal{{ meal.id }}"  class="btn edit-button"
+                    data-toggle="modal"
+                    data-target="#editMealModal"
+                    data-activity-date="{{ display_date }}"
+                    data-activity-id="{{ meal.id }}"
+                    data-activity-duration="{{ meal.duration }}"
+                    data-activity-health="{{ health }}"
+                    data-activity-description="{{ meal.description }}"
+                    data-activity-starch="{{ meal.starch_rich }}"
+                    data-activity-sucrose="{{ meal.sucrose_rich }}">
+                    <a class="fa fa-pencil" tabindex="1" title="Edit Entry">
+                        <i data-icon="edit"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</li>

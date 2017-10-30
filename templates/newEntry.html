@@ -2,22 +2,24 @@
 
 {% block content %}
 
-
-<h1>ADD NEW ENTRY</h1>
+<br><br>
+<h1 class="title">ADD NEW ENTRY</h1>
 <hr>
 
 <!-- TODO: NEW MEAL ENTRY -->
-<h3>New Meal</h3>
+<h2>New Meal</h2>
 <form action="" method="post" name="">
     {{ meal_form.hidden_tag() }}
 
-    <p>Date: {{ meal_form.date }}</p>
-    <p>Add Time: {{ meal_form.time }}</p>
+    <p>{{ meal_form.date }}</p>
+    <p>Duration: {{ meal_form.time }}</p>
     {{ meal_form.health }}
-    <br>
-    <p>Description:</p>
-    {{ meal_form.description }}
     <br><br>
+    {{ meal_form.description(placeholder="Notes (optional)") }}
+    <br>
+    {{ meal_form.starch_rich.label }}{{ meal_form.starch_rich }}
+    {{ meal_form.sucrose_rich.label }}{{ meal_form.sucrose_rich }}
+    <br>
     {{ meal_form.submit_meal }}
 </form>
 <br><br>
@@ -29,14 +31,14 @@
 
 
 <!-- TODO: NEW Sleep ENTRY -->
-<h3>New Sleep</h3>
+<h2>New Sleep</h2>
 <form action="" method="post" name="">
     {{ sleep_form.hidden_tag() }}
 
-    <p>Date: {{ sleep_form.date }}</p>
-    <p>Add Time: {{ sleep_form.time }}</p>
+    <p>{{ sleep_form.date }}</p>
+    <p>Duration: {{ sleep_form.time }}</p>
 
-    <br><br>
+    <br>
     {{ sleep_form.submit_sleep }}
 </form>
 
@@ -44,16 +46,18 @@
 <hr>
 
 <!-- TODO: NEW Workout ENTRY -->
-<h3>New Workout</h3>
+<h2>New Workout</h2>
 <form action="" method="post" name="">
     {{ workout_form.hidden_tag() }}
 
-    <p>Date: {{ workout_form.date }}</p>
-    <p>{{ workout_form.workout_type }}</p>
+    <p>{{ workout_form.date }}</p>
+    <p>Duration: {{ workout_form.duration }}</p>
+
+    <label><strong>Workout Type:</strong></label>
+    {{ workout_form.workout_type }}
+    <label><strong>Workout Intensity:</strong></label>
+    {{ workout_form.intensity }}
     <br>
-    Intensity: {{ workout_form.intensity }}
-    <p>Add Time: {{ workout_form.time }}</p>
-    <br><br>
     {{ workout_form.submit_workout }}
 </form>
 
@@ -64,10 +68,12 @@
 <!-- TODO: NEW Weight ENTRY -->
 <h3>New Weight Measurement</h3>
 <form action="" method="post" name="">
+    {{ weight_form.hidden_tag() }}
 
-    <br><br>
-    <input type="submit">
-
+    <p>{{ weight_form.date }}</p>
+    {{ weight_form.weight(placeholder="Weight (lbs)") }}
+    <br>
+    {{ weight_form.submit_weight }}
 </form>
 
 <br><br>
@@ -76,9 +82,14 @@
 <!-- TODO: NEW Blood Pressure ENTRY -->
 <h3>New Blood Pressure Measurement</h3>
 <form action="" method="post" name="">
+    {{ bloodpressure_form.hidden_tag() }}
 
-    <br><br>
-    <input type="submit">
+    <p>{{ bloodpressure_form.date }}</p>
+    {{ bloodpressure_form.systolic(placeholder="systolic") }}
+    <br>
+    {{ bloodpressure_form.diastolic(placeholder="diastolic") }}
+    <br>
+    {{ bloodpressure_form.submit_bloodpressure }}
 
 </form>
 
@@ -88,9 +99,14 @@
 <!-- TODO: NEW Blood Sugar ENTRY -->
 <h3>New Blood Sugar Measurement</h3>
 <form action="" method="post" name="">
+    {{ bloodpressure_form.hidden_tag() }}
 
-    <br><br>
-    <input type="submit">
+    <p>{{ bloodsugar_form.date }}</p>
+    {{ bloodsugar_form.glucose_level(placeholder="Glucose Level") }}
+    <br>
+    {{ bloodsugar_form.insulin_level(placeholder="Insulin Level") }}
+    <br>
+    {{ bloodsugar_form.submit_bloodsugar }}
 
 </form>
 
@@ -100,10 +116,14 @@
 <!-- TODO: NEW Heart Rate ENTRY -->
 <h3>New Heart Rate Measurement</h3>
 <form action="" method="post" name="">
+    {{ heartrate_form.hidden_tag() }}
 
-    <br><br>
-    <input type="submit">
-
+    <p>{{ heartrate_form.date }}</p>
+    {{ heartrate_form.bpm(placeholder="Beats Per Minute BPM") }}
+    <br>
+    {{ heartrate_form.measurement_type }}
+    <br>
+    {{ heartrate_form.submit_heartrate }}
 </form>
 
 {% endblock %}

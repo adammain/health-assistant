@@ -1,0 +1,33 @@
+<li class="day-view-entry card">
+    <table>
+        <tbody>
+            <tr id="timesheet">
+                <td>
+                    <div class="entry-info">
+                        <div class="project-client">
+                            <span class="project"><strong>Weight</strong> Measurement</span>
+                            <span id="weight{{ weight.id }}"> - <strong>{{ weight.weight }}</strong> lbs</span>
+                        </div>
+                    </div>
+                </td>
+                <td class="entry-time">
+                    <!-- TODO: Add dynamic generated id to form for each entry -->
+                    <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
+                    <form id="timer" method="POST" action="#" type="weight" value="{{ weight.id }}">
+                        <b><span class="ndash"> &nbsp </span><span id="weight{{ weight.id }}">{{ weight.weight }} lbs</span></b>
+                    </form>
+                </td>
+                <td id="btn_weight{{ weight.id }}" class="btn edit-button"
+                    data-toggle="modal"
+                    data-target="#editWeightModal"
+                    data-activity-id="{{ weight.id }}"
+                    data-activity-date="{{ display_date }}"
+                    data-activity-weight="{{ weight.weight }}">
+                    <a class="fa fa-pencil" tabindex="1" title="Edit Entry">
+                        <i data-icon="edit"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</li>

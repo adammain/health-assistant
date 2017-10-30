@@ -1,0 +1,41 @@
+<li class="day-view-entry card">
+    <table>
+        <tbody>
+            <tr id="timesheet">
+                <td>
+                    <div class="entry-info">
+                        <div class="project-client">
+                            <span class="project"><strong>Sleep</strong> Event</span>
+                        </div>
+                    </div>
+                </td>
+                <td class="entry-time">
+                    <!-- TODO: Add dynamic generated id to form for each entry -->
+                    <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
+                    <form id="timer" method="POST" action="#" type="sleep" value="{{ sleep.id }}">
+                        <b><span class="ndash"> &nbsp </span><span id="time_sleep{{ sleep.id }}">{{ sleep.duration|hour_min }}</span></b>
+                        <input type="hidden" id="timer_id" name="timer_id" value="{{ sleep.id }}">
+                        {% if current_date == display_date %}
+                            <button class="btn start-timer-btn" name="timer_btn_sleep{{ sleep.id }}" id="timer_btn_sleep{{ sleep.id }}" type="submit">
+                                <svg class="icon-timer" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <circle class="icon-timer-face" cx="11" cy="11" r="10" stroke-width="2"></circle>
+                                <path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z"></path>
+                                </svg>
+                                <span id="timer_btn_text_sleep{{ sleep.id }}">Start</span></button>
+                        {% endif %}
+                    </form>
+                </td>
+                <td id="time_btn_sleep{{ sleep.id }}" class="btn edit-button"
+                    data-toggle="modal"
+                    data-target="#editSleepModal"
+                    data-activity-id="{{ sleep.id }}"
+                    data-activity-date="{{ display_date }}"
+                    data-activity-duration="{{ sleep.duration }}">
+                    <a class="fa fa-pencil" tabindex="1" title="Edit Entry">
+                        <i data-icon="edit"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</li>

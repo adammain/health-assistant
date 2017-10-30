@@ -1,145 +1,42 @@
 {% extends "base.html" %}
 {% block content %}
-<script type="text/javascript" charset="utf-8">
-    $(document).ready(function() {
-        // Use a "/timer" namespace.
-        // An application can open a connection on multiple namespaces, and
-        // Socket.IO will multiplex all those connections on a single
-        // physical channel. If you don't care about multiple channels, you
-        // can set the namespace to an empty string.
-        namespace = '/timer';
-
-        // Connect to the Socket.IO server.
-        // The connection URL has the following format:
-        //     http[s]://<domain>:<port>[/<namespace>]
-        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-
-        // Dynamically generate new rooms for each new entry to match dynamically gen css id's
-        // Event handler for new connections.
-        // The callback function is invoked when a connection with the
-        // server is established.
-        socket.on('connect', function() {
-            // After page refresh, all buttons are reset to 'Start'
-                // On connect, send emit asking for active_timer
-                // If active timer exists, update styling & button
-
-            socket.emit('no_server_handler_built_yet', {data: 'I\'m connected!'});
-        });
-
-        // IF CLICKED BUTTON IS RUNNING, STOP IT. IF NOT, START IT AND TURN OFF OTHER TIMERS.
-        // After page refresh, all buttons are reset to 'Start'
-            // On connect, send emit asking for active_timer
-            // If active timer exists, update styling & button
-        $('form#timer').submit(function(event) {
-            clickedTimerID = $(this).attr('value');
-            clickedButtonA = $('#timer_btn_text_'+clickedTimerID);
-            clickedButtonParentList = clickedButtonA.closest('li');
-            startClickedTimer = true;
-
-
-            console.log("Clicked Button #", clickedTimerID)
-            console.log("ClickedButtonParentList: ", clickedButtonParentList)
-            console.log("clickedButtonA: ", clickedButtonA)
-            if (clickedButtonA.hasClass('is-running')) {
-                console.log("Clicked Timer Already Running.  Stopping Timer #", clickedTimerID)
-                // if "clicked timer" is running, stop it
-                clickedButtonA.text('Start')
-                clickedButtonA.removeClass('is-running')
-                clickedButtonA.parentsUntil('div.container').removeClass('is-running')
-                socket.emit('deactivate_timer', {room: $(this).attr('value')});
-                $('#log').append('<br>' + $('<div/>').text('Client Sent Stop Timer Request..' + $(this).attr('value')).html());
-                startClickedTimer = false;  // Clicked timer was running, stopped. Next time clicked, start.
-            } else if (clickedButtonParentList.siblings('li').hasClass('is-running')) {
-                // if another timer is running, stop it
-                runningTimerList = clickedButtonParentList.siblings('li.is-running')
-                runningTimerForm = runningTimerList.find('form#timer')
-                runningTimerID = runningTimerForm.attr('value')
-                console.log("Other Timer Already Running.  Stopping Timer #", runningTimerID)
-                runningTimerBtn = runningTimerForm.find('span.is-running')
-                runningTimerBtn.text('Start')
-                runningTimerBtn.removeClass('is-running')
-                runningTimerBtn.parentsUntil('div.container').removeClass('is-running')
-                socket.emit('deactivate_timer', {room: runningTimerID});
-                $('#log').append('<br>' + $('<div/>').text('Client Sent Stop Timer Request..' + runningTimerID).html());
-                startClickedTimer = true;
-            }
-
-            // if no other timer is running, start clicked timer
-            if (startClickedTimer) {
-                console.log("Started Timer #", clickedTimerID)
-                clickedButtonA.text('Stop')
-                clickedButtonA.addClass('is-running')
-                clickedButtonA.parentsUntil('div.container').addClass('is-running')
-                socket.emit('activate_timer', {room: $(this).attr('value')});
-                $('#log').append('<br>' + $('<div/>').text('Client Sent Start Timer Request.. ' + $(this).attr('value')).html());
-            }
-
-            return false;
-        });
-
-        // LOG Event handler for server sent data.
-        // The callback function is invoked whenever the server emits data
-        // to the client. The data is then displayed in the "Received"
-        // section of the page.
-        socket.on('connect_response', function(msg) {
-            $('#log').append('<br>' + $('<div/>').text('Websocket Status: ' + msg.data + '. Active Timer: ' + msg.active_timer).html());
-        });
-
-        socket.on('my_response', function(msg) {
-            $('#log').append('<br>' + $('<div/>').text('Timer Update For: ' + msg.active_timer + ': ' + msg.data).html());
-        });
-
-        // Timer response event handler
-        pageReloadedTimerResponse = true
-        socket.on('timer_response', function(msg) {
-            console.log("CURRENT ACTIVE TIMER: ", msg.active_timer)
-
-            // Update button text for active timer after page refresh
-            activeTimerID = msg.active_timer
-            if (activeTimerID && pageReloadedTimerResponse) {
-                activeTimerBtn = $('#timer_btn_text_'+activeTimerID);
-                activeTimerBtn.text('Stop')
-                activeTimerBtn.addClass('is-running')
-                activeTimerBtn.parentsUntil('div.container').addClass('is-running')
-                $('#log').append('<br>' + $('<div/>').text('Client Sent Start Timer Request.. ' + activeTimerID).html());
-                pageReloadedTimerResponse = false
-            }
-
-            // Active timer response
-            $('#time_'+msg.active_timer).text(msg.count);
-        });
-    });
-</script>
 
 <!-- Create navigation for days of week based on selected date -->
-<script type="text/javascript" charset="utf-8">
+<script>
     $(document).ready(function() {
         let displayDate = moment("{{ display_date }}");
-
         let monday = moment(displayDate).startOf('isoWeek');
         let daysOfWeek = [];
+
+        // Cycle through each day of week to create week nav bar
         for (let i = 0; i < 7; i++) {
+
             daysOfWeek.push(moment(monday).add(i, 'days'))
-            if (moment(displayDate).isSame(daysOfWeek[i]))
-                console.log("DAYS OF WEEK DATE:", daysOfWeek[i], "DISPLAY DATE:", displayDate)
+
+            // Change styling for current selected nav day
+            if (moment(displayDate).isSame(daysOfWeek[i])) {
+                $('ul#day-view-week-nav li a[href='+String(i)+']').addClass('selected')
+            }
+
+            // Create link for each nav day
             $('ul#day-view-week-nav li a[href='+String(i)+']').prop('href', flask_util.url_for('showHome', {year: daysOfWeek[i].format('YYYY'), month: daysOfWeek[i].format('M'), day: daysOfWeek[i].format('DD')}));
         }
-    })
+    });
 </script>
 
 <header class="row banner main">
 
     <!-- Title -->
     <div class="row-fluid title">
-        <div class="col-md-6">
-            <h2>
+        <div class="col-md-8 title-date">
+            <h1>
                 {{ moment(display_date, local=True).format('dddd') }}
-                <span style="color: #888; font-weight: 400">{{ moment(display_date, local=True).format('Do MMM') }}</span>
-            </h2>
+                <span>{{ moment(display_date, local=True).format('Do MMM') }}</span>
+            </h1>
         </div>
     </div>
 
-    <div>
+    <div class="new-entry-week-navigation">
         <!-- Days of Week Navigation -->
         <a id="new-entry" class="btn new-entry-btn" href="{{url_for('newEntry', year = display_year, month = display_month, day = display_day)}}">
             <span>New</span>
@@ -163,7 +60,7 @@
 </header>
 
 <section>
-    <div class="row day-view">
+    <div class="day-view">
 
         <ul id="day-view-week-nav" class="day-view-week-nav">
             {% for day in days %}
@@ -176,71 +73,58 @@
             </li>
         </ul>
 
-        <!-- TODO: How to change timer based on active/inactive status and correct activity? -->
         <ul class="day-view-entry-list">
-            {% for meal in meals %}
-                <li class="day-view-entry card">
-                    <table>
-                        <tbody>
-                            <tr id="timesheet_day_entry_660520049">
-                                <td>
-                                    <div class="entry-info">
-                                        <div class="project-client">
-                                            <span class="project">Meal -
-                                              {% if meal.healthy %}
-                                                    Healthy
-                                                    <span class="ndash">&nbsp </span>
-                                                {% else %}
-                                                    Unhealthy
-                                                {% endif %}
-                                                - ID# {{ meal.id }}
-                                            </span>
-                                        </div>
-                                        <div class="task-notes">
-                                            <span class="task">
-                                                {% if meal.started_at %}
-                                                    Started at: {{ meal.started_at }}
-                                                {% endif %}
-                                                {% if meal.unhealthy %}
-                                                    {% if meal.starch_rich %}
-                                                        Starch Rich
-                                                    {% elif sucrose_rich %}
-                                                        Sucrose Rich
-                                                    {% endif %}
-                                                {% endif %}
-                                            </span>
-                                            {% if meal.description %}
-                                                <span class="notes">
-                                                    <p>
-                                                        <span class="ndash"> – </span>
-                                                        {{ meal.description }}
-                                                    </p>
-                                                </span>
-                                            {% endif %}
+            {% for key, entry in entries.items() %}
 
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="entry-time">
-                                    <!-- TODO: Add dynamic generated id to form for each entry -->
-                                    <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
-                                    <form id="timer" method="POST" action="#" value="{{ meal.id }}">
-                                        <b><span class="ndash"> &nbsp </span><span id="time_{{ meal.id }}">{{ meal.duration }}</span></b>
-                                        <input type="hidden" id="timer_id" name="timer_id" value="{{ meal.id }}">
-                                        {% if current_date == display_date %}
-                                            <button class="btn start-timer-btn" name="timer_btn_{{ meal.id }}" id="timer_btn_{{ meal.id }}" type="submit"><span id="timer_btn_text_{{ meal.id }}">Start</span></button>
-                                        {% endif %}
-                                    </form>
-                                </td>
-                                <td class="btn edit-button">
-                                    <a class="fa fa-pencil" tabindex="1" title="Edit Entry" type="button">
-                                        <i data-icon="edit"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </li>
+                {% if key == 'meals' %}
+                    {% set meals = entry %}
+                    {% for meal in meals %}
+                        {% include 'formMeal.html' %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if key == 'sleep' %}
+                    {% set sleep_sessions = entry %}
+                    {% for sleep in sleep_sessions %}
+                        {% include 'formSleep.html' %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if key == 'workouts' %}
+                    {% set workout_sessions = entry %}
+                    {% for workout in workout_sessions %}
+                        {% include 'formWorkout.html' %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if key == 'weights' %}
+                    {% set weight_measurements = entry %}
+                    {% for weight in weight_measurements %}
+                        {% include 'formWeight.html' %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if key == 'bloodpressure' %}
+                    {% set bloodpressure_measurements = entry %}
+                    {% for bloodpressure in bloodpressure_measurements %}
+                        {% include 'formBloodpressure.html' %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if key == 'bloodsugar' %}
+                    {% set bloodsugar_measurement = entry %}
+                    {% for bloodsugar in bloodsugar_measurement %}
+                        {% include 'formBloodsugar.html' %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if key == 'heartrate' %}
+                    {% set heartrate_measurement = entry %}
+                    {% for heartrate in heartrate_measurement %}
+                        {% include 'formHeartrate.html' %}
+                    {% endfor %}
+                {% endif %}
+
             {% endfor %}
         </ul>
     </div>
@@ -249,4 +133,45 @@
     <h3>Log:</h3>
     <span id="log"></span>
 </section>
+
+<!-- Bootstrap Modals -->
+{% for key, form in forms.items() %}
+
+    {% if key == 'meal' %}
+        {% set meal_form = form %}
+        {% include 'editMealModal.html' %}
+    {% endif %}
+
+    {% if key == 'sleep' %}
+        {% set sleep_form = form %}
+        {% include 'editSleepModal.html' %}
+    {% endif %}
+
+    {% if key == 'workout' %}
+        {% set workout_form = form %}
+        {% include 'editWorkoutModal.html' %}
+    {% endif %}
+
+    {% if key == 'weight' %}
+        {% set weight_form = form %}
+        {% include 'editWeightModal.html' %}
+    {% endif %}
+
+    {% if key == 'bloodpressure' %}
+        {% set bloodpressure_form = form %}
+        {% include 'editBloodPressureModal.html' %}
+    {% endif %}
+
+    {% if key == 'bloodsugar' %}
+        {% set bloodsugar_form = form %}
+        {% include 'editBloodSugarModal.html' %}
+    {% endif %}
+
+    {% if key == 'heartrate' %}
+        {% set heartrate_form = form %}
+        {% include 'editHeartRateModal.html' %}
+    {% endif %}
+
+{% endfor %}
+
 {% endblock %}

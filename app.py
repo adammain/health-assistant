@@ -13,6 +13,7 @@ from flask import make_response
 import requests
 import datetime
 import time
+import babel
 from threading import Lock
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
@@ -63,99 +64,201 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 db_session = DBSession()
 
+
+# User Helper Functions
+def createUser(session):
+    newUser = User(name=session.get('username'), email=session.get(
+                   'email'), picture=session.get('picture'))
+    db_session.add(newUser)
+    db_session.commit()
+    user = db_session.query(User).filter_by(email=session.get('email')).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = db_session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = db_session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+
+def getAllDB(user_id, date):
+    meals = db_session.query(Meal).filter(
+        func.DATE(Meal.created) == date).filter_by(user_id=user_id).all()
+
+    sleep = db_session.query(Sleep).filter(
+        func.DATE(Sleep.created) == date).filter_by(user_id=user_id).all()
+
+    workouts = db_session.query(Workout).filter(
+        func.DATE(Workout.created) == date).filter_by(user_id=user_id).all()
+
+    weights = db_session.query(Weight).filter(
+        func.DATE(Weight.created) == date).filter_by(user_id=user_id).all()
+
+    bloodpressure = db_session.query(BloodPressure).filter(
+        func.DATE(BloodPressure.created) == date).filter_by(user_id=user_id).all()
+
+    bloodsugar = db_session.query(BloodSugar).filter(
+        func.DATE(BloodSugar.created) == date).filter_by(user_id=user_id).all()
+
+    heartrate = db_session.query(HeartRate).filter(
+        func.DATE(HeartRate.created) == date).filter_by(user_id=user_id).all()
+
+    entries = {'meals': meals, 'sleep': sleep, 'workouts': workouts, 'weights': weights,
+               'bloodpressure': bloodpressure, 'bloodsugar': bloodsugar, 'heartrate': heartrate}
+
+    return entries
+
+
+def getForms(opts=None):
+    meal_form = MealForm(opts=opts)
+    sleep_form = SleepForm(opts=opts)
+    workout_form = WorkoutForm(opts=opts)
+    weight_form = WeightForm(opts=opts)
+    bloodpressure_form = BloodPressureForm(opts=opts)
+    bloodsugar_form = BloodSugarForm(opts=opts)
+    heartrate_form = HeartRateForm(opts=opts)
+
+    forms = {'meal': meal_form, 'sleep': sleep_form, 'workout': workout_form, 'weight': weight_form,
+             'blood_pressure': bloodpressure_form, 'blood_sugar': bloodsugar_form, 'heart_rate': heartrate_form}
+
+    forms_submit_checks = {'meal': meal_form.submit_meal, 'sleep': sleep_form.submit_sleep, 'workout': workout_form.submit_workout,
+                           'weight': weight_form.submit_weight, 'blood_pressure': bloodpressure_form.submit_bloodpressure, 'blood_sugar': bloodsugar_form.submit_bloodsugar, 'heart_rate': heartrate_form.submit_heartrate}
+
+    return forms, forms_submit_checks
+
+
+def chop_microseconds(delta):
+    return delta - datetime.timedelta(microseconds=delta.microseconds)
+
+
+@app.template_filter('hour_min')
+def _jinja2_filter_datetime(time_delta):
+    minutes = "%02d" % ((time_delta.seconds // 60) % 60,)
+    hours = time_delta.seconds // 3600
+    return str(hours) + ":" + str(minutes)
+
+
+@app.context_processor
+def utility_processor():
+    if 'username' in session:
+        return dict(logged_in=True, provider=session['provider'])
+    else:
+        return dict(logged_in=False)
+
+
 # Create anti-forgery state token
-
-
 @app.route('/login')
 def showLogin():
+    print("LOGIN SESSION: {}".format(session))
+    access_token = session.get('access_token')
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in range(32))
     session['state'] = state
-    # return "The current session state is %s" % session['state']
-    # return "Login session state: %s" % session['state']
-    return render_template('login.html', STATE=state)
+
+    # Only display login button for provider of previous logins
+    if 'provider' not in session:
+        return render_template('login.html', STATE=state, provider=None)
+    elif session['provider'] == 'google':
+        return render_template('login.html', STATE=state, provider='google')
+    else:
+        return render_template('login.html', STATE=state, provider='facebook')
 
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
-    if request.args.get('state') != session.get('state'):
-        response = make_response(json.dumps('Invalid state parameter.'), 401)
+    if request.args.get('state') != session['state']:
+        response = make_response(json.dumps('Invalid state parameter'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
+
     access_token = request.data
+    print("ACCESS TOK: {}".format(access_token))
+    if len(access_token) <= 5:
+        print("BROKEN ACCESS TOKEN")
+        if 'access_token' not in session:
+            flash(
+                "Error logging in with provider.  Please clear broswer cache and reattempt.")
+            return render_template('login.html')
+        else:
+            print("USING SAVED ACCESS TOKEN")
+            access_token = session['access_token']
+    else:
+        access_token = access_token.decode("utf-8")
+
     print("access token received %s " % access_token)
 
-    app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
-        'web']['app_id']
+    # exchange client token for long-lived server-side token with GET
+    app_id = json.loads(
+        open('fb_client_secrets.json', 'r').read())['web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
-        app_id, app_secret, access_token)
+    url = ('https://graph.facebook.com/v2.9/oauth/access_token?'
+           'grant_type=fb_exchange_token&client_id=%s&client_secret=%s'
+           '&fb_exchange_token=%s') % (app_id, app_secret, access_token)
     h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
+    result = h.request(url, 'GET')[1].decode('utf-8')
+    data = json.loads(result)
+    token = 'access_token=' + data['access_token']
+    # see: https://discussions.udacity.com/t/
+    #   issues-with-facebook-oauth-access-token/233840?source_topic_id=174342
 
     # Use token to get user info from API
-    userinfo_url = "https://graph.facebook.com/v2.8/me"
-    '''
-        Due to the formatting for the result from the server token exchange we have to
-        split the token first on commas and select the first index which gives us the key : value
-        for the server access token then we split it on colons to pull out the actual token value
-        and replace the remaining quotes with nothing so that it can be used directly in the graph
-        api calls
-    '''
-    token = result.split(',')[0].split(':')[1].replace('"', '')
+    # make API call with new token
+    url = 'https://graph.facebook.com/v2.9/me?%s&fields=name,id,email,picture' % token
 
-    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
+   # new: put the "picture" here, it is now part of the default
+   # "public_profile"
+
     h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    # print("url sent for API access:%s"% url)
-    # print("API JSON result: %s" % result)
+    result = h.request(url, 'GET')[1].decode('utf-8')
     data = json.loads(result)
     session['provider'] = 'facebook'
-    session['username'] = data["name"]
-    session['email'] = data["email"]
-    session['facebook_id'] = data["id"]
-
-    # The token must be stored in the login_session in order to properly logout
-    session['access_token'] = token
-
-    # Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    data = json.loads(result)
-
-    session['picture'] = data["data"]["url"]
+    session['username'] = data['name']
+    session['email'] = data['email']
+    session['facebook_id'] = data['id']
+    session['picture'] = data['picture']["data"]["url"]
+    session['access_token'] = access_token
 
     # see if user exists
-    user_id = getUserID(session.get('email'))
+    try:
+        user = db_session.query(User).filter_by(email=session['email']).one()
+        user_id = user.id
+    except:
+        user_id = createUser(session)
+
     if not user_id:
         user_id = createUser(session)
     session['user_id'] = user_id
 
     output = ''
     output += '<h1>Welcome, '
-    output += session.get('username')
+    output += session['username']
+    output += '!</h1><img src="'
+    output += session['picture']
+    output += ' ">'
 
-    output += '!</h1>'
-    output += '<img src="'
-    output += session.get('picture')
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-
-    flash("Now logged in as %s" % session.get('username'))
+    flash("Now logged in as %s" % session['username'])
     return output
 
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
-    facebook_id = session.get('facebook_id')
+    facebook_id = session['facebook_id']
     # The access token must me included to successfully logout
-    access_token = session.get('access_token')
+    access_token = session['access_token']
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (
         facebook_id, access_token)
     h = httplib2.Http()
-    result = h.request(url, 'DELETE')[1]
-    return "you have been logged out"
+    result = h.request(url, 'DELETE')[1].decode('utf-8')
+    flash('You have been successfully logged out.')
+    return redirect(url_for('showLogin'))
 
 
 @app.route('/gconnect', methods=['POST'])
@@ -245,32 +348,9 @@ def gconnect():
     output += '<img src="'
     output += session.get('picture')
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % session.get('username'))
+    flash("You are now logged in as %s" % session.get('username'))
     print("done!")
     return output
-
-
-# User Helper Functions
-def createUser(session):
-    newUser = User(name=session.get('username'), email=session.get(
-                   'email'), picture=session.get('picture'))
-    db_session.add(newUser)
-    db_session.commit()
-    user = db_session.query(User).filter_by(email=session.get('email')).one()
-    return user.id
-
-
-def getUserInfo(user_id):
-    user = db_session.query(User).filter_by(id=user_id).one()
-    return user
-
-
-def getUserID(email):
-    try:
-        user = db_session.query(User).filter_by(email=email).one()
-        return user.id
-    except:
-        return None
 
 
 # DISCONNECT - Revoke a current user's token and reset their session
@@ -278,6 +358,7 @@ def getUserID(email):
 def gdisconnect():
     # Only disconnect a connected user.
     access_token = session.get('access_token')
+    print("ACCESS TOKEN: {}".format(access_token))
     if access_token is None:
         response = make_response(
             json.dumps('Current user not connected.'), 401)
@@ -286,6 +367,7 @@ def gdisconnect():
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
+    print("Result:".format(result))
     if result['status'] == '200':
         del session['access_token']
         del session['gplus_id']
@@ -294,7 +376,9 @@ def gdisconnect():
         del session['picture']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        flash(response)
+        return redirect(url_for('showLogin'))
+        # return response
     else:
         response = make_response(json.dumps(
             'Failed to revoke token for given user.', 400))
@@ -302,50 +386,31 @@ def gdisconnect():
         return response
 
 
-def chop_microseconds(delta):
-    return delta - datetime.timedelta(microseconds=delta.microseconds)
-
-
-@app.route('/')
-@app.route('/home/')
+@app.route('/', methods=('GET', 'POST'))
+@app.route('/home/', methods=('GET', 'POST'))
 def showHome():
-    days = {0: "M", 1: "T", 2: "W", 3: "Th", 4: "F", 5: "S", 6: "Su"}
-    now = datetime.datetime.now()
-    year, month, day = now.year, now.month, now.day
-
-    if 'year' in request.args:
-        year = int(request.args['year'])
-        month = int(request.args['month'])
-        day = int(request.args['day'])
-
-    display_date = datetime.date(year, month, day)
-    current_date = datetime.date(now.year, now.month, now.day)
-
     if 'username' not in session:
-        return render_template('publicLanding.html')
+        return redirect(url_for('showLogin'))
     else:
+        days = {0: "M", 1: "T", 2: "W", 3: "Th", 4: "F", 5: "S", 6: "Su"}
+        now = datetime.datetime.now()
+        year, month, day = now.year, now.month, now.day
+        if 'year' in request.args:
+            year = int(request.args['year'])
+            month = int(request.args['month'])
+            day = int(request.args['day'])
+        display_date = datetime.date(year, month, day)
+        current_date = datetime.date(now.year, now.month, now.day)
         user_id = session['user_id']
+        forms, forms_submit_checks = getForms()
+        entries = getAllDB(user_id, display_date)
 
-        # TODO: Add join query for all activities/measurement tables
+        for form in forms:
+            print("FORM: {}".format(form))
 
-        # meals = db_session.query(Meal).filter(
-        #     Meal.user_id).order_by(Meal.created.desc()).all()
-        # activities = (db_session.query(User, Meal, Sleep, Workout)
-        #               .join(Meal)
-        #               .join(Sleep)
-        #               .join(Workout)
-        #               .filter(User.id == user_id)
-        #               ).all()
-
-        meals = db_session.query(Meal).filter(
-            func.DATE(Meal.created) == display_date).all()
-
-        for meal in meals:
-            meal.duration = chop_microseconds(meal.duration)
-
-        # return "This page will show all my activities and measurements"
         return render_template('home.html',
-                               meals=meals,
+                               forms=forms,
+                               entries=entries,
                                days=days,
                                display_date=display_date,
                                display_year=display_date.year,
@@ -368,48 +433,62 @@ def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().mo
     entry_name = None
     user_id = session.get('user_id')
 
-    # Request for passing displayed date to form for default value
-    # with app.test_request_context(method='POST'):
-    meal_form = MealForm(request.form, date=date)
-    sleep_form = SleepForm()
-    workout_form = WorkoutForm()
-    weight_form = WeightForm()
-    bloodpressure_form = BloodPressureForm()
-    bloodsugar_form = BloodSugarForm()
-    heartrate_form = HeartRateForm()
+    # meal_form = MealForm(date=date)
+    # sleep_form = SleepForm(date=date)
+    # workout_form = WorkoutForm(date=date)
+    # weight_form = WeightForm(date=date)
+    # bloodpressure_form = BloodPressureForm(date=date)
+    # bloodsugar_form = BloodSugarForm(date=date)
+    # heartrate_form = HeartRateForm(date=date)
 
-    if meal_form.submit_meal.data and meal_form.validate_on_submit():
-        print("MEAL HELPER CALLED")
-        helpers.NewEntry.meal(meal_form)
-        table, entry_name = Meal, "Meal"
+    # if meal_form.submit_meal.data and meal_form.validate_on_submit():
+    #     print("MEAL HELPER CALLED")
+    #     helpers.NewEntry.meal(meal_form)
+    #     table, entry_name = Meal, "Meal"
 
-    if workout_form.submit_workout.data and workout_form.validate_on_submit():
-        print("WORKOUT HELPER CALLED")
-        helpers.NewEntry.workout(workout_form)
-        table, entry_name = Workout, "Workout"
+    # if sleep_form.submit_sleep.data and sleep_form.validate_on_submit():
+    #     print("SLEEP HELPER CALLED")
+    #     helpers.NewEntry.sleep(sleep_form)
+    #     table, entry_name = Sleep, "Sleep"
 
-    if sleep_form.submit_sleep.data and sleep_form.validate_on_submit():
-        print("SLEEP HELPER CALLED")
-        helpers.NewEntry.sleep(sleep_form)
-        table, entry_name = Sleep, "Sleep"
+    # if workout_form.submit_workout.data and workout_form.validate_on_submit():
+    #     print("WORKOUT HELPER CALLED")
+    #     helpers.NewEntry.workout(workout_form)
+    #     table, entry_name = Workout, "Workout"
 
-    if weight_form.submit_weight.data and weight_form.validate_on_submit():
-        print("WEIGHT HELPER CALLED")
-        helpers.NewEntry.weight(weight_form)
-        table, entry_name = Weight, "Weight"
+    # if weight_form.submit_weight.data:
+    #     if weight_form.validate_on_submit():
+    #         print("WEIGHT HELPER CALLED")
+    #         helpers.NewEntry.weight(weight_form)
+    #         table, entry_name = Weight, "Weight"
+    #     else:
+    #         for fieldName, errorMessages in weight_form.errors.items():
+    #             print("FIELD: {}".format(fieldName))
+    #             for err in errorMessages:
+    #                 print("ERROR MESSAGE: {}".format(err))
+    #         return jsonify({'test': request.form})
 
-    if bloodpressure_form.submit_bloodpressure.data and bloodpressure_form.validate_on_submit():
-        helpers.NewEntry.bloodPressure(bloodpressure_form)
-        table, entry_name = BloodPressure, "Blood Pressure"
+    # if bloodpressure_form.submit_bloodpressure.data and bloodpressure_form.validate_on_submit():
+    #     helpers.NewEntry.blood_pressure(bloodpressure_form)
+    #     table, entry_name = BloodPressure, "Blood Pressure"
 
-    if bloodsugar_form.submit_bloodsugar.data and bloodsugar_form.validate_on_submit():
-        helpers.NewEntry.bloodSugar(bloodsugar_form)
-        table, entry_name = BloodSugar, "Blood Sugar"
+    # if bloodsugar_form.submit_bloodsugar.data and bloodsugar_form.validate_on_submit():
+    #     helpers.NewEntry.blood_sugar(bloodsugar_form)
+    #     table, entry_name = BloodSugar, "Blood Sugar"
 
-    if heartrate_form.submit_heartrate.data and heartrate_form.validate_on_submit():
-        helpers.NewEntry.heartRate(heartrate_form)
-        table, entry_name = HeartRate, "Heart Rate"
+    # if heartrate_form.submit_heartrate.data and heartrate_form.validate_on_submit():
+    #     helpers.NewEntry.heart_rate(heartrate_form)
+    #     table, entry_name = HeartRate, "Heart Rate"
 
+    forms, forms_submit_checks = getForms(opts=date)
+
+    # Runs after forms are submitted, checks validity, submits form to helper
+    for key, form in forms.items():
+        if forms_submit_checks[key].data and form.validate_on_submit():
+            helpers.NewEntry(form)
+            table, entry_name = forms[key], key.title()
+
+    # If form entry successfully added, flash message and redirect home
     if entry_name is not None:
         flash('New %s entry added successfully' % entry_name)
         db_session.commit()
@@ -418,13 +497,146 @@ def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().mo
 
     # return "This page will show all my activities"
     return render_template('newEntry.html',
-                           meal_form=meal_form,
-                           sleep_form=sleep_form,
-                           workout_form=workout_form,
-                           weight_form=weight_form,
-                           bloodpressure_form=bloodpressure_form,
-                           bloodsugar_form=bloodsugar_form,
-                           heartrate_form=heartrate_form)
+                           meal_form=forms['meal'],
+                           sleep_form=forms['sleep'],
+                           workout_form=forms['workout'],
+                           weight_form=forms['weight'],
+                           bloodpressure_form=forms['blood_pressure'],
+                           bloodsugar_form=forms['blood_sugar'],
+                           heartrate_form=forms['heart_rate'])
+
+
+# TODO: Edit new entry (measurement/activity)
+@app.route('/edit-entry/', methods=('GET', 'POST'))
+@app.route('/edit-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
+def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=datetime.datetime.now().day):
+    if 'username' not in session:
+        return redirect('/login')
+
+    # meal_form = MealForm()
+    # sleep_form = SleepForm()
+    # workout_form = WorkoutForm()
+    # weight_form = WeightForm()
+    # bloodpressure_form = BloodPressureForm()
+    # bloodsugar_form = BloodSugarForm()
+    # heartrate_form = HeartRateForm()
+
+    current_date = datetime.date(year, month, day)
+    entry_name = None
+    user_id = session.get('user_id')
+
+    if 'year' in request.args:
+        year = request.args['year']
+        month = request.args['month']
+        day = request.args['day']
+    if 'id' in request.args and request.method == 'POST':
+        id = request.args['id']
+
+    # if meal_form.submit_meal.data and meal_form.validate_on_submit():
+    #     print("MEAL HELPER CALLED")
+    #     helpers.EditEntry.meal(meal_form, id)
+    #     table, entry_name = Meal, "Meal"
+    # elif sleep_form.submit_sleep.data and sleep_form.validate_on_submit():
+    #     print("SLEEP HELPER CALLED")
+    #     helpers.EditEntry.sleep(sleep_form, id)
+    #     table, entry_name = Sleep, "Sleep"
+    # elif workout_form.submit_workout.data and workout_form.validate_on_submit():
+    #     print("WORKOUT HELPER CALLED")
+    #     helpers.EditEntry.workout(workout_form, id)
+    #     table, entry_name = Workout, "Workout"
+    # elif weight_form.submit_weight.data and weight_form.validate_on_submit():
+    #     print("WEIGHT HELPER CALLED")
+    #     helpers.EditEntry.weight(weight_form, id)
+    #     table, entry_name = Weight, "Weight"
+    # elif bloodpressure_form.submit_bloodpressure.data and bloodpressure_form.validate_on_submit():
+    #     helpers.EditEntry.blood_pressure(bloodpressure_form, id)
+    #     table, entry_name = BloodPressure, "Blood Pressure"
+    # elif bloodsugar_form.submit_bloodsugar.data and bloodsugar_form.validate_on_submit():
+    #     helpers.EditEntry.blood_sugar(bloodsugar_form, id)
+    #     table, entry_name = BloodSugar, "Blood Sugar"
+    # elif heartrate_form.submit_heartrate.data and heartrate_form.validate_on_submit():
+    #     helpers.EditEntry.heart_rate(heartrate_form, id)
+    #     table, entry_name = HeartRate, "Heart Rate"
+
+    forms, forms_submit_checks = getForms()
+
+    # Runs after Modal forms are submitted, checks validity, submits form to
+    # helper
+    for key, form in forms.items():
+        if forms_submit_checks[key].data and form.validate_on_submit():
+            helpers.EditEntry(form, id)
+            table, entry_name = forms[key], key.title()
+
+        # If edit entry failed display error message
+        for fieldName, errorMessages in form.errors.items():
+            print("FIELD: {}".format(fieldName))
+            for err in errorMessages:
+                print("ERROR MESSAGE: {}".format(err))
+            return jsonify({'Error saving data': request.form})
+
+    if entry_name is not None:
+        flash('%s entry updated successfully' % entry_name)
+        db_session.commit()
+        return redirect(url_for('showHome', year=year, month=month, day=day))
+
+    # If edit entry failed redirect to home page with error message
+    flash('Failed to update with %s. Please attempt again.' %
+          (jsonify({'test': request.form})))
+    return redirect(url_for('showHome', year=year, month=month, day=day))
+
+
+# TODO: Edit new entry (measurement/activity)
+@app.route('/delete-entry/', methods=('GET', 'POST'))
+@app.route('/delete-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
+def deleteEntry(id=None):
+    if 'username' not in session:
+        return redirect('/login')
+
+    print("METHOD TYPE: {}".format(request.method))
+    print("ID: {}".format(request.args))
+
+    if 'id' in request.args and request.method == 'POST':
+        id = int(request.args['id'])
+        type = request.args['type']
+
+        if type == 'meal':
+            meal = db_session.query(Meal).filter_by(id=id).one()
+            db_session.delete(meal)
+            db_session.commit()
+        elif type == 'sleep':
+            sleep = db_session.query(Sleep).filter_by(id=id).one()
+            db_session.delete(sleep)
+            db_session.commit()
+        elif type == 'workout':
+            workout = db_session.query(Workout).filter_by(id=id).one()
+            db_session.delete(workout)
+            db_session.commit()
+        elif type == 'weight':
+            print("DELETE WEIGHT")
+            weight = db_session.query(Weight).filter_by(id=id).one()
+            db_session.delete(weight)
+            db_session.commit()
+        elif type == 'bloodpressure':
+            bloodpressure = db_session.query(
+                BloodPressure).filter_by(id=id).one()
+            db_session.delete(bloodpressure)
+            db_session.commit()
+        elif type == 'bloodsugar':
+            bloodsugar = db_session.query(
+                BloodSugar).filter_by(id=id).one()
+            db_session.delete(bloodsugar)
+            db_session.commit()
+        elif type == 'heartrate':
+            heartrate = db_session.query(
+                HeartRate).filter_by(id=id).one()
+            db_session.delete(heartrate)
+            db_session.commit()
+
+        flash('%s entry successfully deleted.' % type.title())
+        return redirect(url_for('showHome', year=int(request.args['year']), month=int(request.args['month']), day=int(request.args['day'])))
+
+    flash('Failed to delete entry. Please attempt again.')
+    return redirect(url_for('showHome', year=int(request.args['year']), month=int(request.args['month']), day=int(request.args['day'])))
 
 
 # START of SocketIO implimentation
@@ -440,20 +652,17 @@ def background_thread(session):
     timer = None
     while thread_live:
         # if active_timer is not None:
-        socketio.sleep(0.1)
-        if session['active_timer'] is not None:
+        socketio.sleep(1)
+
+        if session['active_timer'] is not None and timers[session['active_timer']].running:
             timer = timers[session['active_timer']]
-            print("active_timer: " + str(session['active_timer']))
-            print("Timer Object: {}".format(
-                timers[session['active_timer']].runningElapsed))
 
         timer_btn_text = ''
         if timer and timer.running:
             seconds = timer.runningElapsed
             m, s = divmod(seconds, 60)
             h, m = divmod(m, 60)
-            time = "%d:%02d:%02d" % (h, m, s)
-            print(time)
+            time = "%d:%02d" % (h, m)
             socketio.emit('timer_response',
                           {'data': 'Server generated event',
                               'count': time, 'active_timer': session['active_timer']},
@@ -462,6 +671,7 @@ def background_thread(session):
             thread_live = False
             global thread
             with thread_lock:
+                print("Thread set: None")
                 thread = None
 
 
@@ -471,20 +681,36 @@ def activate(message):
     join_room(message['room'])
 
     # save active timer info to current session
-    session['active_timer'] = message['room']
-    print("CURRENT ACTIVE TIMER: {}".format(session['active_timer']))
-    # get activities current saved time from DB
-    meal = db_session.query(Meal).filter(
-        Meal.id == session['active_timer']).one()
-    start_with_time = meal.duration.total_seconds()
+    session['active_timer'] = message['type'] + message['room']
+    # session['active_timer_type'] =
+    print("PREPARING TO ACTIVATE TIMER: {}".format(session['active_timer']))
+    print("TIME DETAILS: {}".format(message))
+
+    models = {'meal': Meal, 'sleep': Sleep, 'workout': Workout, 'weight': Weight,
+              'bloodpressure': BloodPressure, 'bloodsugar': BloodSugar, 'heartrate': HeartRate}
+
+    for key, model in models.items():
+        if key == message['type']:
+            # get activities current saved time from DB
+            print("ACTIVATE %s TIMER" % key)
+            activity = db_session.query(model).filter(
+                model.id == message['room']).one()
+            start_with_time = activity.duration.total_seconds()
+
+    # elif message['type'] == 'sleep':
+    #     print("ACTIVATE SLEEP TIMER")
+    #     sleep = db_session.query(Sleep).filter(
+    #         Sleep.id == message['room']).one()
+    #     start_with_time = sleep.duration.total_seconds()
+
     print("START WITH TIME: {}".format(start_with_time))
     # start timer for activity
     print("Starting Timer...")
     global timerKey
-    timerKey = message['room']
+    timerID = message['type'] + message['room']
     global timers
-    timers = {timerKey: Timer()}
-    timers[timerKey].start(start_with_time)
+    timers = {timerID: Timer()}
+    timers[timerID].start(start_with_time)
 
     print("Timer STARTED")
     print("activated TIMER: " + str(session['active_timer']))
@@ -493,42 +719,56 @@ def activate(message):
     global thread
     with thread_lock:
         if thread is None:
+            print("Background thread fire request...")
             thread = socketio.start_background_task(
                 background_thread, session._get_current_object())
 
     # send response for log update
     emit('my_response',
-         {'data': 'Start Timer In room: ' + ', '.join(rooms()),
+         {'data': 'TIMER STARTED',
           'active_timer': session['active_timer']})
 
 
 @socketio.on('deactivate_timer', namespace='/timer')
 def deactivate(message):
-    timerID = message['room']
+    timerID = message['type'] + message['room']
+    print("Deactivate TimerID: {}".format(timerID))
     timer = timers[timerID]
     if timer.running:
         print("Stopping Timer...")
         timer.stop()
         print("Timer STOPPED")
     leave_room(message['room'])
-    meal = db_session.query(Meal).filter(
-        Meal.id == message['room']).one()
-    elapsed_time = datetime.timedelta(seconds=timer.elapsed)
-    print("Duration Before: " + str(meal.duration))
-    print("Change To: " + str(elapsed_time))
-    meal.duration = elapsed_time
-    db_session.add(meal)
-    db_session.commit()
-    meal = db_session.query(Meal).filter(
-        Meal.id == timerID).one()
-    print("Duration After: " + str(meal.duration))
-    global thread
-    with thread_lock:
-        thread = None
-    emit('my_response',
-         {'data': 'Stopped Timer In room: ' + ', '.join(rooms()),
-          'active_timer': session['active_timer']})
-    session['active_timer'] = None
+    # Save timer info to db
+    print("Activity: {}".format(message['type']))
+
+    models = {'meal': Meal, 'sleep': Sleep, 'workout': Workout, 'weight': Weight,
+              'bloodpressure': BloodPressure, 'bloodsugar': BloodSugar, 'heartrate': HeartRate}
+
+    for key, model in models.items():
+        if key == message['type']:
+            print("SAVE SAVE SAVE SAVE")
+            activity = db_session.query(model).filter(
+                model.id == message['room']).one()
+            elapsed_time = datetime.timedelta(seconds=timer.elapsed)
+            print("Duration Before: " + str(activity.duration))
+            print("Change To: " + str(elapsed_time))
+            activity.duration = elapsed_time
+            db_session.add(activity)
+            db_session.commit()
+            activity = db_session.query(model).filter(
+                model.id == message['room']).one()
+            print("Duration After: " + str(activity.duration))
+
+            # Reset background thread and send log deactivate message
+            global thread
+            thread = None
+            print("Thread setting: None")
+            emit('my_response',
+                 {'data': 'TIMER STOPPED',
+                  'active_timer': session['active_timer']})
+            session['active_timer'] = None
+            print("Active Timer: {}".format(session['active_timer']))
 
 
 # Background thread initiation example:
@@ -558,99 +798,6 @@ def test_disconnect():
 
 
 # End of SocketIO test implimentation
-
-
-# TODO: Show all activities sortable by date
-@app.route('/activities/')
-def showActivities():
-    # sleep_activities = db_session.query(Sleep).filter_by(
-    #     user_id=user_id).all()
-
-    # workout_activities = db_session.query(Workout).filter_by(
-    #     user_id=user_id).all()
-    print(activities)
-    # return "This page will show all my activities"
-    return render_template('activities.html', activities=activities)
-
-
-# TODO: Show all measurements sortable by date
-@app.route('/measurements/')
-def showMeasurements():
-    # weight_measurements = db_session.query(Weight).filter_by(
-    #     user_id=user_id).all()
-
-    # bp_measurements = db_session.query(BloodPressure).filter_by(
-    #     user_id=user_id).all()
-    print(measurements)
-    # return "This page will show all my restaurants"
-    return render_template('measurements.html', measurements=measurements)
-
-
-# TODO: Edit activity
-
-# TODO: Add new measurement
-
-# TODO: Edit measurement
-
-
-# API routes
-# TODO: All users all data
-@app.route('/api/activities/<int:user_id>/JSON')
-def allDataJSON(user_id):
-    date = date
-    activity = db_session.query(Activity).filter_by(id=user_id).one()
-    sleep = db_session.query(Sleep).filter_by(
-        user_id=user_id).order_by(sleep.activity.time_created)
-    return jsonify(MenuItems=[i.serialize for i in items])
-
-
-# TODO: All invividual users data
-@app.route('/api/activities/<int:user_id>/JSON')
-def userDataJSON(user_id):
-    date = date
-    activity = db_session.query(Activity).filter_by(id=user_id).one()
-    sleep = db_session.query(Sleep).filter_by(
-        user_id=user_id).order_by(sleep.activity.time_created)
-    return jsonify(MenuItems=[i.serialize for i in items])
-
-
-# TODO: All invividual user activities by date
-@app.route('/api/activities/<int:user_id>/<int:date>JSON')
-def userDayDataJSON(user_id):
-    date = date
-    activity = db_session.query(Activity).filter_by(id=user_id).one()
-    sleep = db_session.query(Sleep).filter_by(
-        user_id=user_id).order_by(sleep.activity.time_created)
-    return jsonify(MenuItems=[i.serialize for i in items])
-
-
-# TODO: All invividual user measurements by date
-@app.route('/api/measurement/<int:user_id>/<int:date>/JSON')
-def userDayMeasurementsJSON(user_id, menu_id):
-    Menu_Item = db_session.query(MenuItem).filter_by(id=menu_id).one()
-    return jsonify(Menu_Item=Menu_Item.serialize)
-
-
-# TODO: All invividual user activities by type
-@app.route('/api/activities/<int:user_id>/<int:date>/<type>/JSON')
-def userActivityType():
-    restaurants = db_session.query(Restaurant).all()
-    return jsonify(restaurants=[r.serialize for r in restaurants])
-
-
-# TODO: Invividual user specific activity
-@app.route('/api/activity/<int:user_id>/<int:activity_id>JSON')
-def userActivityJSON():
-    restaurants = db_session.query(Restaurant).all()
-    return jsonify(restaurants=[r.serialize for r in restaurants])
-
-
-# TODO: Individual user specific measurement
-@app.route('/api/measurement/<int:user_id>/<int:measurement_id>JSON')
-def userMeasurementJSON():
-    restaurants = db_session.query(Restaurant).all()
-    return jsonify(restaurants=[r.serialize for r in restaurants])
-
 
 # TODO: UPDATE SUPER SECRET KEY TO app.config
 if __name__ == '__main__':

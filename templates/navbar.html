@@ -1,0 +1,27 @@
+<nav class="nav">
+    <div class="nav__wrapper">
+        <ul class="nav__wrapper__admin">
+            <li class="nav__home_icon">
+                <a href="{{url_for('showHome')}}">
+                    <span class="fa fa-home icon" aria-hidden="true"></span>
+                </a>
+            </li>
+            <li class="nav__flash">
+                {% include 'flash.html' %}
+            </li>
+            <li class="nav__logout">
+                {% if logged_in %}
+
+                    {% if provider == 'google' %}
+                        <a href="{{url_for('gdisconnect')}}">Logout</a>
+                    {% elif provider == 'facebook' %}
+                        <a href="{{url_for('fbdisconnect')}}">Logout</a>
+                    {% endif %}
+
+                {% else %}
+                    <a href="{{url_for('showLogin')}}">Login</a>
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+</nav>
