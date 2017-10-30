@@ -194,8 +194,8 @@ li.nav__logout {
 .flash ul li strong {
     color: #2196f3;
     transition: background 0.5s linear;
-    background: gainsboro;
-    padding: .5em;
+    background: rgba(212, 212, 214, 0.4);
+    padding: .8em;
 }
 
 /* UI ELEMENTS */
