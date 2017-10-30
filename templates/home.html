@@ -62,15 +62,13 @@
 <section>
     <div class="day-view">
 
+        <!-- TODO: Add ability to choose by calendar date -->
         <ul id="day-view-week-nav" class="day-view-week-nav">
             {% for day in days %}
                 <li>
                     <a class="btn" href="{{ day }}" currentDate="{{ current_date }}">{{ days[day] }}</a>
                 </li>
             {% endfor %}
-            <li>
-                <a class="btn" currentDate="{{ current_date }}">Total</a>
-            </li>
         </ul>
 
         <ul class="day-view-entry-list">

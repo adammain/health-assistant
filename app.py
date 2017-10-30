@@ -48,7 +48,7 @@ timers = {}
 test_timer = Timer()
 moment = Moment(app)
 
-# save sessions on server with flask_sessions ext.
+# save sessions on server with flask_sessions ext. (Redis)
 SESSION_TYPE = 'redis'
 app.config.from_object(__name__)
 Session(app)
@@ -65,7 +65,7 @@ DBSession = sessionmaker(bind=engine)
 db_session = DBSession()
 
 
-# User Helper Functions
+# # User Helper Functions
 def createUser(session):
     newUser = User(name=session.get('username'), email=session.get(
                    'email'), picture=session.get('picture'))
@@ -75,11 +75,13 @@ def createUser(session):
     return user.id
 
 
+# Helper function: Return current user data
 def getUserInfo(user_id):
     user = db_session.query(User).filter_by(id=user_id).one()
     return user
 
 
+# Helper function: Return current user id
 def getUserID(email):
     try:
         user = db_session.query(User).filter_by(email=email).one()
@@ -88,6 +90,7 @@ def getUserID(email):
         return None
 
 
+# Helper function: Return all DB entries for user
 def getAllDB(user_id, date):
     meals = db_session.query(Meal).filter(
         func.DATE(Meal.created) == date).filter_by(user_id=user_id).all()
@@ -116,14 +119,15 @@ def getAllDB(user_id, date):
     return entries
 
 
+# Helper function: Return all entry forms
 def getForms(opts=None):
-    meal_form = MealForm(opts=opts)
-    sleep_form = SleepForm(opts=opts)
-    workout_form = WorkoutForm(opts=opts)
-    weight_form = WeightForm(opts=opts)
-    bloodpressure_form = BloodPressureForm(opts=opts)
-    bloodsugar_form = BloodSugarForm(opts=opts)
-    heartrate_form = HeartRateForm(opts=opts)
+    meal_form = MealForm(date=opts)
+    sleep_form = SleepForm(date=opts)
+    workout_form = WorkoutForm(date=opts)
+    weight_form = WeightForm(date=opts)
+    bloodpressure_form = BloodPressureForm(date=opts)
+    bloodsugar_form = BloodSugarForm(date=opts)
+    heartrate_form = HeartRateForm(date=opts)
 
     forms = {'meal': meal_form, 'sleep': sleep_form, 'workout': workout_form, 'weight': weight_form,
              'blood_pressure': bloodpressure_form, 'blood_sugar': bloodsugar_form, 'heart_rate': heartrate_form}
@@ -134,10 +138,12 @@ def getForms(opts=None):
     return forms, forms_submit_checks
 
 
+# Helper function: Remove microseconds from time
 def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
 
 
+# Helper function: Format time display piping filter
 @app.template_filter('hour_min')
 def _jinja2_filter_datetime(time_delta):
     minutes = "%02d" % ((time_delta.seconds // 60) % 60,)
@@ -145,6 +151,7 @@ def _jinja2_filter_datetime(time_delta):
     return str(hours) + ":" + str(minutes)
 
 
+# Helper function: Send login data to all tempates
 @app.context_processor
 def utility_processor():
     if 'username' in session:
@@ -153,7 +160,7 @@ def utility_processor():
         return dict(logged_in=False)
 
 
-# Create anti-forgery state token
+# # OAuth/Login/User Functions
 @app.route('/login')
 def showLogin():
     print("LOGIN SESSION: {}".format(session))
@@ -171,6 +178,7 @@ def showLogin():
         return render_template('login.html', STATE=state, provider='facebook')
 
 
+# FB OAuth connection - Create/Test token and session
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
     if request.args.get('state') != session['state']:
@@ -248,6 +256,7 @@ def fbconnect():
     return output
 
 
+# FB OAuth disconnect
 @app.route('/fbdisconnect')
 def fbdisconnect():
     facebook_id = session['facebook_id']
@@ -261,6 +270,7 @@ def fbdisconnect():
     return redirect(url_for('showLogin'))
 
 
+# Google OAuth connection - Create token and session
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -353,7 +363,7 @@ def gconnect():
     return output
 
 
-# DISCONNECT - Revoke a current user's token and reset their session
+# Google disconnect - Revoke current token and reset session
 @app.route('/gdisconnect')
 def gdisconnect():
     # Only disconnect a connected user.
@@ -386,6 +396,7 @@ def gdisconnect():
         return response
 
 
+# # General routing functions
 @app.route('/', methods=('GET', 'POST'))
 @app.route('/home/', methods=('GET', 'POST'))
 def showHome():
@@ -405,9 +416,6 @@ def showHome():
         forms, forms_submit_checks = getForms()
         entries = getAllDB(user_id, display_date)
 
-        for form in forms:
-            print("FORM: {}".format(form))
-
         return render_template('home.html',
                                forms=forms,
                                entries=entries,
@@ -422,7 +430,7 @@ def showHome():
                                current_day=now.day)
 
 
-# TODO: Add new entry (measurement/activity)
+# Add new DB Entry
 @app.route('/new-entry/', methods=('GET', 'POST'))
 @app.route('/new-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
 def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=datetime.datetime.now().day):
@@ -459,7 +467,7 @@ def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().mo
                            heartrate_form=forms['heart_rate'])
 
 
-# TODO: Edit new entry (measurement/activity)
+# Edit existing DB entry
 @app.route('/edit-entry/', methods=('GET', 'POST'))
 @app.route('/edit-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
 def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=datetime.datetime.now().day):
@@ -479,8 +487,7 @@ def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().m
 
     forms, forms_submit_checks = getForms()
 
-    # Runs after Modal forms are submitted, checks validity, submits form to
-    # helper
+    # Runs after Modal forms are submitted, checks validity, submits form
     for key, form in forms.items():
         if forms_submit_checks[key].data and form.validate_on_submit():
             helpers.EditEntry(form, id)
@@ -488,7 +495,6 @@ def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().m
 
         # If edit entry failed display error message
         for fieldName, errorMessages in form.errors.items():
-            print("FIELD: {}".format(fieldName))
             for err in errorMessages:
                 print("ERROR MESSAGE: {}".format(err))
             return jsonify({'Error saving data': request.form})
@@ -504,7 +510,7 @@ def editEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().m
     return redirect(url_for('showHome', year=year, month=month, day=day))
 
 
-# TODO: Edit new entry (measurement/activity)
+# Delete existing DB entry
 @app.route('/delete-entry/', methods=('GET', 'POST'))
 @app.route('/delete-entry/<int:year>/<int:month>/<int:day>', methods=('GET', 'POST'))
 def deleteEntry(id=None):
@@ -558,8 +564,8 @@ def deleteEntry(id=None):
     return redirect(url_for('showHome', year=int(request.args['year']), month=int(request.args['month']), day=int(request.args['day'])))
 
 
-# START of SocketIO implimentation
-# Timer thread
+# # START of SocketIO implimentation
+# Timer thread. Manages running timer.
 def background_thread(session):
     """Send server generated events to client."""
     print("BG THREAD FIRED!")
@@ -594,6 +600,7 @@ def background_thread(session):
                 thread = None
 
 
+# Start timer
 @socketio.on('activate_timer', namespace='/timer')
 def activate(message):
     # create room for this activities timer
@@ -648,6 +655,7 @@ def activate(message):
           'active_timer': session['active_timer']})
 
 
+# Stop timer and update DB
 @socketio.on('deactivate_timer', namespace='/timer')
 def deactivate(message):
     timerID = message['type'] + message['room']
@@ -690,7 +698,7 @@ def deactivate(message):
             print("Active Timer: {}".format(session['active_timer']))
 
 
-# Background thread initiation example:
+# Background thread initiation test:
 @socketio.on('connect', namespace='/timer')
 def test_connect():
 
@@ -711,6 +719,7 @@ def test_connect():
                               'active_timer': sessionObject['active_timer']})
 
 
+# Background thread disconnect test:
 @socketio.on('disconnect', namespace='/timer')
 def test_disconnect():
     print('Client disconnected', request.sid)
