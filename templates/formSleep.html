@@ -16,10 +16,10 @@
                         <b><span class="ndash"> &nbsp </span><span id="time_sleep{{ sleep.id }}">{{ sleep.duration|hour_min }}</span></b>
                         <input type="hidden" id="timer_id" name="timer_id" value="{{ sleep.id }}">
                         {% if current_date == display_date %}
-                            <button class="btn start-timer-btn" name="timer_btn_sleep{{ sleep.id }}" id="timer_btn_sleep{{ sleep.id }}" type="submit">
-                                <svg class="icon-timer" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                                <circle class="icon-timer-face" cx="11" cy="11" r="10" stroke-width="2"></circle>
-                                <path class="icon-timer-hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z"></path>
+                            <button class="btn start_timer__btn" name="timer_btn_sleep{{ sleep.id }}" id="timer_btn_sleep{{ sleep.id }}" type="submit">
+                                <svg class="icon_timer" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <circle class="icon_timer__face" cx="11" cy="11" r="10" stroke-width="2"></circle>
+                                <path class="icon_timer__hand" d="M12.8 10.2L11 2l-1.8 8.2-.2.8c0 1 1 2 2 2s2-1 2-2c0-.3 0-.6-.2-.8z"></path>
                                 </svg>
                                 <span id="timer_btn_text_sleep{{ sleep.id }}">Start</span></button>
                         {% endif %}

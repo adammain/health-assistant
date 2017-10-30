@@ -69,8 +69,8 @@ class BloodPressureForm(FlaskForm):
     date = DateField(u'Date', validators=[validators.Required()],
                      format='%m/%d/%Y',
                      default=datetime.date(today().year,
-                                           ftoday().month,
-                                           ftoday().day))
+                                           today().month,
+                                           today().day))
     systolic = IntegerField(u'Systolic', validators=[validators.Required()])
     diastolic = IntegerField(u'Diastolic', validators=[validators.Required()])
     submit_bloodpressure = SubmitField('Submit Measurement')

@@ -92,40 +92,40 @@ def getUserID(email):
 
 # Helper function: Return all DB entries for user
 def getAllDB(user_id, date):
-    meals = db_session.query(Meal)
-    .filter(func.DATE(Meal.created) == date)
-    .filter_by(user_id=user_id)
-    .all()
+    meals = db_session.query(Meal) \
+        .filter(func.DATE(Meal.created) == date) \
+        .filter_by(user_id=user_id) \
+        .all()
 
-    sleep = db_session.query(Sleep)
-    .filter(func.DATE(Sleep.created) == date)
-    .filter_by(user_id=user_id)
-    .all()
+    sleep = db_session.query(Sleep) \
+        .filter(func.DATE(Sleep.created) == date) \
+        .filter_by(user_id=user_id) \
+        .all()
 
-    workouts = db_session.query(Workout)
-    .filter(func.DATE(Workout.created) == date)
-    .filter_by(user_id=user_id)
-    .all()
+    workouts = db_session.query(Workout) \
+        .filter(func.DATE(Workout.created) == date) \
+        .filter_by(user_id=user_id) \
+        .all()
 
-    weights = db_session.query(Weight)
-    .filter(func.DATE(Weight.created) == date)
-    .filter_by(user_id=user_id)
-    .all()
+    weights = db_session.query(Weight) \
+        .filter(func.DATE(Weight.created) == date) \
+        .filter_by(user_id=user_id) \
+        .all()
 
-    bloodpressure = db_session.query(BloodPressure)
-    .filter(func.DATE(BloodPressure.created) == date)
-    .filter_by(user_id=user_id)
-    .all()
+    bloodpressure = db_session.query(BloodPressure) \
+        .filter(func.DATE(BloodPressure.created) == date) \
+        .filter_by(user_id=user_id) \
+        .all()
 
-    bloodsugar = db_session.query(BloodSugar)
-    .filter(func.DATE(BloodSugar.created) == date)
-    .filter_by(user_id=user_id)
-    .all()
+    bloodsugar = db_session.query(BloodSugar) \
+        .filter(func.DATE(BloodSugar.created) == date) \
+        .filter_by(user_id=user_id) \
+        .all()
 
-    heartrate = db_session.query(HeartRate)
-    .filter(func.DATE(HeartRate.created) == date)
-    .filter_by(user_id=user_id)
-    .all()
+    heartrate = db_session.query(HeartRate) \
+        .filter(func.DATE(HeartRate.created) == date) \
+        .filter_by(user_id=user_id) \
+        .all()
 
     entries = {'meals': meals, 'sleep': sleep, 'workouts': workouts,
                'weights': weights, 'bloodpressure': bloodpressure,
@@ -242,8 +242,8 @@ def fbconnect():
 
     # Use token to get user info from API
     # make API call with new token
-    url =
-    'https://graph.facebook.com/v2.9/me?%s&fields=name,id,email,picture' \
+    url = \
+        'https://graph.facebook.com/v2.9/me?%s&fields=name,id,email,picture' \
         % token
 
     h = httplib2.Http()
@@ -614,8 +614,8 @@ def background_thread(session):
         # if active_timer is not None:
         socketio.sleep(1)
 
-        if session['active_timer'] is not None
-        and timers[session['active_timer']].running:
+        if session['active_timer'] is not None and \
+                timers[session['active_timer']].running:
             timer = timers[session['active_timer']]
 
         timer_btn_text = ''
