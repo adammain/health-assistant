@@ -16,6 +16,9 @@ $(document).ready(function() {
         let starch_rich = button.data('activity-starch')
         let sucrose_rich = button.data('activity-sucrose')
 
+        console.log("starch_rich: ", typeof(starch_rich))
+        console.log("sucrose_rich: ", sucrose_rich)
+
         // Slice seconds off edit time input
         if (duration.length == 8)
             duration = duration.slice(0, 5)
@@ -33,9 +36,9 @@ $(document).ready(function() {
         $('#description').val(description)
 
         if (starch_rich == 'True')
-            $('#starch_rich').prop('checked')
+            $('#starch_rich').prop('checked', true)
         if (sucrose_rich == 'True')
-            $('#sucrose_rich').prop('checked');
+            $('#sucrose_rich').prop('checked', true);
 
         // Delete meal entry
         $('#editMealModal .confirm-delete').attr('action', flask_util.url_for('deleteEntry', {type: 'meal', id: id, year: year, month: month, day: day }));

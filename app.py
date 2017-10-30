@@ -120,14 +120,14 @@ def getAllDB(user_id, date):
 
 
 # Helper function: Return all entry forms
-def getForms(opts=None):
-    meal_form = MealForm(date=opts)
-    sleep_form = SleepForm(date=opts)
-    workout_form = WorkoutForm(date=opts)
-    weight_form = WeightForm(date=opts)
-    bloodpressure_form = BloodPressureForm(date=opts)
-    bloodsugar_form = BloodSugarForm(date=opts)
-    heartrate_form = HeartRateForm(date=opts)
+def getForms(date=None):
+    meal_form = MealForm(date=date)
+    sleep_form = SleepForm(date=date)
+    workout_form = WorkoutForm(date=date)
+    weight_form = WeightForm(date=date)
+    bloodpressure_form = BloodPressureForm(date=date)
+    bloodsugar_form = BloodSugarForm(date=date)
+    heartrate_form = HeartRateForm(date=date)
 
     forms = {'meal': meal_form, 'sleep': sleep_form, 'workout': workout_form, 'weight': weight_form,
              'blood_pressure': bloodpressure_form, 'blood_sugar': bloodsugar_form, 'heart_rate': heartrate_form}
@@ -441,7 +441,7 @@ def newEntry(year=datetime.datetime.now().year, month=datetime.datetime.now().mo
     entry_name = None
     user_id = session.get('user_id')
 
-    forms, forms_submit_checks = getForms(opts=date)
+    forms, forms_submit_checks = getForms(date=date)
 
     # Runs after forms are submitted, checks validity, submits form to helper
     for key, form in forms.items():
