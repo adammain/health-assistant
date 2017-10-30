@@ -29,9 +29,9 @@ $(document).ready(function() {
         modal.find('.modal-title').text('Edit entry: ' + date.format('dddd, Do MMM'))
 
         // Inject Flask-wtf form inputs
-        $('form#edit-entry p#modal-date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
-        $('form#edit-entry p#modal-time').append('<input id="time" name="time" type="text" value='+duration+'>').html();
-        $('form#edit-entry').attr('action', flask_util.url_for('editEntry', {type: 'meal', id: id, year: year, month: month, day: day }));
+        $('form#edit_entry p#modal__date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
+        $('form#edit_entry p#modal__time').append('<input id="time" name="time" type="text" value='+duration+'>').html();
+        $('form#edit_entry').attr('action', flask_util.url_for('editEntry', {type: 'meal', id: id, year: year, month: month, day: day }));
         $('#health').val(health)
         $('#description').val(description)
 
@@ -41,19 +41,19 @@ $(document).ready(function() {
             $('#sucrose_rich').prop('checked', true);
 
         // Delete meal entry
-        $('#editMealModal .confirm-delete').attr('action', flask_util.url_for('deleteEntry', {type: 'meal', id: id, year: year, month: month, day: day }));
-        $('#delete-meal-entry').click(function(e) {
+        $('#editMealModal .confirm_delete').attr('action', flask_util.url_for('deleteEntry', {type: 'meal', id: id, year: year, month: month, day: day }));
+        $('#delete_meal_entry').click(function(e) {
             console.log("DELETE CLICKED EVENT")
             e.preventDefault();
-            let content = $('<button class="confirmed-delete" href="#" type="submit">Confirm Delete?</button>').html();
-            $('#editMealModal #initial-delete').replaceWith('<button action="#" class="entry-delete" method="POST">' + content + '</button>');
+            let content = $('<button class="confirmed_delete" href="#" type="submit">Confirm Delete?</button>').html();
+            $('#editMealModal #initial_delete').replaceWith('<button action="#" class="entry__delete" method="POST">' + content + '</button>');
         });
     });
 
     // Reset form values when closed.
     $('#editMealModal').on('hidden.bs.modal', function (e) {
-        $('form#edit-entry p input').remove();
-        $('#editMealModal button.entry-delete').replaceWith('<div id="initial-delete"><a id="delete-meal-entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
+        $('form#edit_entry p input').remove();
+        $('#editMealModal button.entry__delete').replaceWith('<div id="initial_delete"><a id="delete_meal_entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
     })
 
 
@@ -79,23 +79,23 @@ $(document).ready(function() {
         modal.find('.modal-title').text('Edit entry: ' + date.format('dddd, Do MMM'))
 
         // Inject Flask-wtf form inputs
-        $('form#edit-entry p#modal-date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
-        $('form#edit-entry p#modal-time').append('<input id="time" name="time" type="text" value='+duration+'>').html();
-        $('form#edit-entry').attr('action', flask_util.url_for('editEntry', {type: 'sleep', id: id, year: year, month: month, day: day }));
+        $('form#edit_entry p#modal__date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
+        $('form#edit_entry p#modal__time').append('<input id="time" name="time" type="text" value='+duration+'>').html();
+        $('form#edit_entry').attr('action', flask_util.url_for('editEntry', {type: 'sleep', id: id, year: year, month: month, day: day }));
 
         // Delete sleep entry
-        $('#editSleepModal .confirm-delete').attr('action', flask_util.url_for('deleteEntry', {type: 'sleep', id: id, year: year, month: month, day: day }));
-        $('#delete-sleep-entry').click(function(e) {
+        $('#editSleepModal .confirm_delete').attr('action', flask_util.url_for('deleteEntry', {type: 'sleep', id: id, year: year, month: month, day: day }));
+        $('#delete_sleep_entry').click(function(e) {
             e.preventDefault();
-            let content = $('<button class="confirmed-delete" href="#" type="submit">Confirm Delete?</button>').html();
-            $('#editSleepModal #initial-delete').replaceWith('<button action="#" class="entry-delete" method="POST">' + content + '</button>');
+            let content = $('<button class="confirmed_delete" href="#" type="submit">Confirm Delete?</button>').html();
+            $('#editSleepModal #initial_delete').replaceWith('<button action="#" class="entry__delete" method="POST">' + content + '</button>');
         });
     });
 
     // Reset form values when closed.
     $('#editSleepModal').on('hidden.bs.modal', function (e) {
-        $('form#edit-entry p input').remove();
-        $('#editSleepModal button.entry-delete').replaceWith('<div id="initial-delete"><a id="delete-sleep-entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
+        $('form#edit_entry p input').remove();
+        $('#editSleepModal button.entry__delete').replaceWith('<div id="initial_delete"><a id="delete_sleep_entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
     });
 
 
@@ -126,9 +126,9 @@ $(document).ready(function() {
         modal.find('.modal-title').text('Edit entry: ' + date.format('dddd, Do MMM'))
 
         // Inject Flask-wtf form inputs
-        $('form#edit-entry p#modal-date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
-        $('form#edit-entry p#modal-time').append('<input id="duration" name="duration" type="text" value='+duration+'>').html();
-        $('form#edit-entry').attr('action', flask_util.url_for('editEntry', {type: entryType, id: id, year: year, month: month, day: day }));
+        $('form#edit_entry p#modal__date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
+        $('form#edit_entry p#modal__time').append('<input id="duration" name="duration" type="text" value='+duration+'>').html();
+        $('form#edit_entry').attr('action', flask_util.url_for('editEntry', {type: entryType, id: id, year: year, month: month, day: day }));
 
         if (light == 'True')
             $('input:radio[name=intensity]').filter('[value=light]').prop('checked', true)
@@ -142,19 +142,19 @@ $(document).ready(function() {
 
 
         // Delete workout entry
-        $('#editWorkoutModal .confirm-delete').attr('action', flask_util.url_for('deleteEntry', {type: entryType, id: id, year: year, month: month, day: day }));
-        $('#delete-workout-entry').click(function(e) {
+        $('#editWorkoutModal .confirm_delete').attr('action', flask_util.url_for('deleteEntry', {type: entryType, id: id, year: year, month: month, day: day }));
+        $('#delete_workout_entry').click(function(e) {
             console.log("DELETE CLICKED EVENT")
             e.preventDefault();
-            let content = $('<button class="confirmed-delete" href="#" type="submit">Confirm Delete?</button>').html();
-            $('#editWorkoutModal #initial-delete').replaceWith('<button action="#" class="entry-delete" method="POST">' + content + '</button>');
+            let content = $('<button class="confirmed_delete" href="#" type="submit">Confirm Delete?</button>').html();
+            $('#editWorkoutModal #initial_delete').replaceWith('<button action="#" class="entry__delete" method="POST">' + content + '</button>');
         });
     });
 
     // Reset form values when closed.
     $('#editWorkoutModal').on('hidden.bs.modal', function (e) {
-        $('form#edit-entry p input').remove();
-        $('#editWorkoutModal button.entry-delete').replaceWith('<div id="initial-delete"><a id="delete-workout-entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
+        $('form#edit_entry p input').remove();
+        $('#editWorkoutModal button.entry__delete').replaceWith('<div id="initial_delete"><a id="delete_workout_entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
     });
 
     // WEIGHT MODAL JS
@@ -173,23 +173,23 @@ $(document).ready(function() {
         modal.find('.modal-title').text('Edit entry: ' + date.format('dddd, Do MMM'))
 
         // Inject Flask-wtf form inputs
-        $('form#edit-entry p#modal-date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
-        $('form#edit-entry p#modal-weight').append('<input id="weight" name="weight" type="text" value='+weight+'>').html();
-        $('form#edit-entry').attr('action', flask_util.url_for('editEntry', {type: 'weight', id: id, year: year, month: month, day: day }));
+        $('form#edit_entry p#modal__date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
+        $('form#edit_entry p#modal__weight').append('<input id="weight" name="weight" type="text" value='+weight+'>').html();
+        $('form#edit_entry').attr('action', flask_util.url_for('editEntry', {type: 'weight', id: id, year: year, month: month, day: day }));
 
         // Delete weight entry
-        $('#editWeightModal .confirm-delete').attr('action', flask_util.url_for('deleteEntry', {type: 'weight', id: id, year: year, month: month, day: day }));
-        $('#delete-weight-entry').click(function(e) {
+        $('#editWeightModal .confirm_delete').attr('action', flask_util.url_for('deleteEntry', {type: 'weight', id: id, year: year, month: month, day: day }));
+        $('#delete_weight_entry').click(function(e) {
             e.preventDefault();
-            let content = $('<button class="confirmed-delete" href="#" type="submit">Confirm Delete?</button>').html();
-            $('#editWeightModal #initial-delete').replaceWith('<button action="#" class="entry-delete" method="POST">' + content + '</button>');
+            let content = $('<button class="confirmed_delete" href="#" type="submit">Confirm Delete?</button>').html();
+            $('#editWeightModal #initial_delete').replaceWith('<button action="#" class="entry__delete" method="POST">' + content + '</button>');
         });
     });
 
     // Reset form values when closed.
     $('#editWeightModal').on('hidden.bs.modal', function (e) {
-        $('form#edit-entry p input').remove();
-        $('#editWeightModal button.entry-delete').replaceWith('<div id="initial-delete"><a id="delete-weight-entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
+        $('form#edit_entry p input').remove();
+        $('#editWeightModal button.entry__delete').replaceWith('<div id="initial_delete"><a id="delete_weight_entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
     });
 
 
@@ -211,24 +211,24 @@ $(document).ready(function() {
         modal.find('.modal-title').text('Edit entry: ' + date.format('dddd, Do MMM'))
 
         // Inject Flask-wtf form inputs
-        $('form#edit-entry p#modal-date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
-        $('form#edit-entry p#modal-systolic').append('<span>Sys</span><input id="systolic" name="systolic" placeholder="systolic" type="text" value='+systolic+'>').html();
-        $('form#edit-entry p#modal-diastolic').append('<span>Dia</span><input id="diastolic" name="diastolic" placeholder="diastolic" type="text" value='+diastolic+'>').html();
-        $('form#edit-entry').attr('action', flask_util.url_for('editEntry', {type: type, id: id, year: year, month: month, day: day }));
+        $('form#edit_entry p#modal__date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
+        $('form#edit_entry p#modal__systolic').append('<span>Sys</span><input id="systolic" name="systolic" placeholder="systolic" type="text" value='+systolic+'>').html();
+        $('form#edit_entry p#modal__diastolic').append('<span>Dia</span><input id="diastolic" name="diastolic" placeholder="diastolic" type="text" value='+diastolic+'>').html();
+        $('form#edit_entry').attr('action', flask_util.url_for('editEntry', {type: type, id: id, year: year, month: month, day: day }));
 
         // Delete blood pressure entry
-        $('#editBloodPressureModal .confirm-delete').attr('action', flask_util.url_for('deleteEntry', {type: type, id: id, year: year, month: month, day: day }));
-        $('#delete-bloodpressure-entry').click(function(e) {
+        $('#editBloodPressureModal .confirm_delete').attr('action', flask_util.url_for('deleteEntry', {type: type, id: id, year: year, month: month, day: day }));
+        $('#delete_bloodpressure_entry').click(function(e) {
             e.preventDefault();
-            let content = $('<button class="confirmed-delete" href="#" type="submit">Confirm Delete?</button>').html();
-            $('#editBloodPressureModal #initial-delete').replaceWith('<button action="#" class="entry-delete" method="POST">' + content + '</button>');
+            let content = $('<button class="confirmed_delete" href="#" type="submit">Confirm Delete?</button>').html();
+            $('#editBloodPressureModal #initial_delete').replaceWith('<button action="#" class="entry__delete" method="POST">' + content + '</button>');
         });
     });
 
     // Reset form values when closed.
     $('#editBloodPressureModal').on('hidden.bs.modal', function (e) {
-        $('form#edit-entry p input').remove();
-        $('#editBloodPressureModal button.entry-delete').replaceWith('<div id="initial-delete"><a id="delete-bp-entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
+        $('form#edit_entry p input').remove();
+        $('#editBloodPressureModal button.entry__delete').replaceWith('<div id="initial_delete"><a id="delete_bloodpressure_entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
     });
 
 
@@ -250,24 +250,24 @@ $(document).ready(function() {
         modal.find('.modal-title').text('Edit entry: ' + date.format('dddd, Do MMM'))
 
         // Inject Flask-wtf form inputs
-        $('form#edit-entry p#modal-date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
-        $('form#edit-entry p#modal-glucose-level').append('<span>Glucose (mmol/L)</span><input id="glucose_level" name="glucose_level" placeholder="glucose_level" type="text" value='+glucose_level+'>').html();
-        $('form#edit-entry p#modal-insulin-level').append('<span>Insulin (pmol/L)</span><input id="insulin_level" name="insulin_level" placeholder="insulin_level" type="text" value='+insulin_level+'>').html();
-        $('form#edit-entry').attr('action', flask_util.url_for('editEntry', {type: type, id: id, year: year, month: month, day: day }));
+        $('form#edit_entry p#modal__date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
+        $('form#edit_entry p#modal__glucose_level').append('<span>Glucose (mmol/L)</span><input id="glucose_level" name="glucose_level" placeholder="glucose_level" type="text" value='+glucose_level+'>').html();
+        $('form#edit_entry p#modal__insulin_level').append('<span>Insulin (pmol/L)</span><input id="insulin_level" name="insulin_level" placeholder="insulin_level" type="text" value='+insulin_level+'>').html();
+        $('form#edit_entry').attr('action', flask_util.url_for('editEntry', {type: type, id: id, year: year, month: month, day: day }));
 
         // Delete blood pressure entry
-        $('#editBloodSugarModal .confirm-delete').attr('action', flask_util.url_for('deleteEntry', {type: type, id: id, year: year, month: month, day: day }));
-        $('#delete-bloodsugar-entry').click(function(e) {
+        $('#editBloodSugarModal .confirm_delete').attr('action', flask_util.url_for('deleteEntry', {type: type, id: id, year: year, month: month, day: day }));
+        $('#delete_bloodsugar_entry').click(function(e) {
             e.preventDefault();
-            let content = $('<button class="confirmed-delete" href="#" type="submit">Confirm Delete?</button>').html();
-            $('#editBloodSugarModal #initial-delete').replaceWith('<button action="#" class="entry-delete" method="POST">' + content + '</button>');
+            let content = $('<button class="confirmed_delete" href="#" type="submit">Confirm Delete?</button>').html();
+            $('#editBloodSugarModal #initial_delete').replaceWith('<button action="#" class="entry__delete" method="POST">' + content + '</button>');
         });
     });
 
     // Reset form values when closed.
     $('#editBloodSugarModal').on('hidden.bs.modal', function (e) {
-        $('form#edit-entry p input').remove();
-        $('#editBloodSugarModal button.entry-delete').replaceWith('<div id="initial-delete"><a id="delete-bp-entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
+        $('form#edit_entry p input').remove();
+        $('#editBloodSugarModal button.entry__delete').replaceWith('<div id="initial_delete"><a id="delete_bloodsugar_entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
     });
 
 
@@ -290,29 +290,28 @@ $(document).ready(function() {
         modal.find('.modal-title').text('Edit entry: ' + date.format('dddd, Do MMM'))
 
         // Inject Flask-wtf form inputs
-        $('form#edit-entry p#modal-date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
-        $('form#edit-entry p#modal-bpm').append('<input id="bpm" name="bpm" placeholder="Beats Per Minute BPM" type="text" value='+bpm+'>').html();
+        $('form#edit_entry p#modal__date').append('<input id="date" name="date" type="text" value='+date.format('MM/DD/YYYY')+'>').html();
+        $('form#edit_entry p#modal__bpm').append('<input id="bpm" name="bpm" placeholder="Beats Per Minute BPM" type="text" value='+bpm+'>').html();
 
-        console.log("RESTING?: ", resting)
         if (resting == 'True')
             $('input:radio[name=measurement_type]').filter('[value=resting]').prop('checked', true)
         else
             $('input:radio[name=measurement_type]').filter('[value=active]').prop('checked', true)
 
-        $('form#edit-entry').attr('action', flask_util.url_for('editEntry', {type: type, id: id, year: year, month: month, day: day }));
+        $('form#edit_entry').attr('action', flask_util.url_for('editEntry', {type: type, id: id, year: year, month: month, day: day }));
 
         // Delete blood pressure entry
-        $('#editHeartRateModal .confirm-delete').attr('action', flask_util.url_for('deleteEntry', {type: type, id: id, year: year, month: month, day: day }));
-        $('#delete-heartrate-entry').click(function(e) {
+        $('#editHeartRateModal .confirm_delete').attr('action', flask_util.url_for('deleteEntry', {type: type, id: id, year: year, month: month, day: day }));
+        $('#delete_heartrate_entry').click(function(e) {
             e.preventDefault();
-            let content = $('<button class="confirmed-delete" href="#" type="submit">Confirm Delete?</button>').html();
-            $('#editHeartRateModal #initial-delete').replaceWith('<button action="#" class="entry-delete" method="POST">' + content + '</button>');
+            let content = $('<button class="confirmed_delete" href="#" type="submit">Confirm Delete?</button>').html();
+            $('#editHeartRateModal #initial_delete').replaceWith('<button action="#" class="entry__delete" method="POST">' + content + '</button>');
         });
     });
 
     // Reset form values when closed.
     $('#editHeartRateModal').on('hidden.bs.modal', function (e) {
-        $('form#edit-entry p input').remove();
-        $('#editHeartRateModal button.entry-delete').replaceWith('<div id="initial-delete"><a id="delete-bp-entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
+        $('form#edit_entry p input').remove();
+        $('#editHeartRateModal button.entry__delete').replaceWith('<div id="initial_delete"><a id="delete_heartrate_entry" href="#">Delete<span class="fa fa-trash"></span></a></div>')
     });
 })

@@ -1,15 +1,15 @@
-<li class="day-view-entry card">
+<li class="day_view__entry card">
     <table>
         <tbody>
             <tr id="timesheet">
                 <td>
-                    <div class="entry-info">
-                        <div class="project-client">
+                    <div class="entry__info">
+                        <div class="project__client">
                             <span class="project">
                                 <strong>Blood Pressure </strong> Measurement
                             </span>
                         </div>
-                        <div class="task-notes">
+                        <div class="task_notes">
                             <span class="task">
                                 <strong>ID:</strong> {{ bloodpressure.id }}
                                 <span class="ndash">&nbsp</span>-<span class="ndash">&nbsp</span>
@@ -29,14 +29,14 @@
                         </div>
                     </div>
                 </td>
-                <td class="entry-time">
+                <td class="entry__time">
                     <!-- TODO: Add dynamic generated id to form for each entry -->
                     <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
                     <form id="timer" method="POST" action="#" type="bloodpressure" value="{{ bloodpressure.id }}">
                         <b><span class="ndash"> &nbsp </span><span id="bloodpressure{{ bloodpressure.id }}">{{ bloodpressure.systolic }}/{{ bloodpressure.diastolic }} <strong>Sys/Dia</strong></span></b>
                     </form>
                 </td>
-                <td id="btn_bloodpressure{{ bloodpressure.id }}" class="btn edit-button"
+                <td id="btn_bloodpressure{{ bloodpressure.id }}" class="btn edit_button"
                     data-toggle="modal"
                     data-target="#editBloodPressureModal"
                     data-activity-id="{{ bloodpressure.id }}"

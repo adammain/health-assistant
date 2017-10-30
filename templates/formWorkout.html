@@ -1,15 +1,15 @@
-<li class="day-view-entry card">
+<li class="day_view__entry card">
     <table>
         <tbody>
             <tr id="timesheet">
                 <td>
-                    <div class="entry-info">
-                        <div class="project-client">
+                    <div class="entry__info">
+                        <div class="project_client">
                             <span class="project">
                                 <strong>Workout</strong>
                             </span>
                         </div>
-                        <div class="task-notes">
+                        <div class="task_notes">
                             <span class="task">
                                 <strong>ID:</strong> {{ workout.id }}
                                 <span class="ndash">&nbsp</span>-<span class="ndash">&nbsp</span>
@@ -40,7 +40,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="entry-time">
+                <td class="entry__time">
                     <!-- TODO: Add dynamic generated id to form for each entry -->
                     <!-- Sends correct timer id (activity.id) to socketio room for toggle timer functionality -->
                     <form id="timer" method="POST" action="#" type="workout" value="{{ workout.id }}">
@@ -56,7 +56,7 @@
                         {% endif %}
                     </form>
                 </td>
-                <td id="time_btn_workout{{ workout.id }}" class="btn edit-button"
+                <td id="time_btn_workout{{ workout.id }}" class="btn edit_button"
                     data-toggle="modal"
                     data-target="#editWorkoutModal"
                     data-activity-id="{{ workout.id }}"

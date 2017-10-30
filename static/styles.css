@@ -85,6 +85,15 @@ a {
 a:hover {
     text-decoration: none;
 }
+
+/* ANIMATION */
+@keyframes rotate {
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
+
+/* LOGIN */
 .login_wrapper {
     width: 320px;
     text-align: center;
@@ -101,9 +110,13 @@ a:hover {
     background: #eee;
     padding: 2em 0;
 }
+
+/* BODY CONTENT */
 .container {
     margin-top: -1em;
 }
+
+/* NAV */
 .nav__wrapper {
     display: flex;
     justify-content: space-between;
@@ -171,11 +184,22 @@ li.nav__logout {
     text-align: right;
     width: 20%;
 }
-.day-view {
-    text-align: center;
-    flex-flow: column;
+
+
+/* FLASH NOTIFICATION */
+.flash {
+    display: flex;
+    justify-content: center;
 }
-.button-toggle {
+.flash ul li strong {
+    color: #2196f3;
+    transition: background 0.5s linear;
+    background: gainsboro;
+    padding: .5em;
+}
+
+/* UI ELEMENTS */
+.button__toggle {
     display: inline-block;
     vertical-align: middle;
     margin-left: 5px;
@@ -212,88 +236,6 @@ li.nav__logout {
     box-shadow: 2px 4px 8px 0 rgba(0, 0, 0, 0.1);
     color: red;
 }
-.btn.new-entry-btn {
-    border-radius: 5px;
-    height: 37px;
-    overflow: visible;
-    text-align: center;
-    width: 65px;
-    background: #50b840;
-    color: #fff;
-    font-weight: 200;
-}
-a:hover.btn.new-entry-btn {
-    color: #fafafa;
-    background: #47a539;
-    text-decoration: none;
-}
-.btn.new-entry-btn span {
-    vertical-align: -webkit-baseline-middle;
-}
-.title .title-date {
-    padding-left: 0;
-}
-.title span span {
-    color: #888;
-    font-weight: 300;
-}
-.new-entry-week-navigation {
-    margin: .6em 0;
-}
-.btn.start-timer-btn {
-    background: #dff0d8;
-    color: #47525d;
-    width: 105px;
-    border: 1px solid darkseagreen;
-    margin: 0 1em .3em;
-}
-.btn.start-timer-btn:hover {
-    background: #4fb840;
-    color: #dff0d8;
-}
-.btn.start-timer-btn.is-running {
-    background: red;
-    color: #fff;
-    border: 1px solid red;
-}
-.btn.start-timer-btn span {
-    vertical-align: text-bottom;
-}
-@keyframes rotate {
-  100% {
-    transform: rotateZ(360deg);
-  }
-}
-.icon-timer {
-    vertical-align: sub;
-}
-.icon-timer.is-running {
-    animation: rotate 6s infinite linear;
-}
-.icon-timer-face {
-    stroke: #4fb840;
-}
-.icon-timer-hand {
-    fill: #4fb840;
-}
-.day-view-entry .is-running .icon-timer-face {
-    stroke: #fff;
-}
-.day-view-entry .is-running .icon-timer-hand {
-    fill: #fff;
-}
-.btn.start-timer-btn:hover .icon-timer-face {
-    stroke: #dff0d8;
-}
-.btn.start-timer-btn:hover .icon-timer-hand {
-    fill: #dff0d8;
-}
-.btn.start-timer-btn:hover .is-running .icon-timer-face {
-    stroke: #fff;
-}
-.btn.start-timer-btn:hover .is-running .icon-timer-hand {
-    fill: #fff;
-}
 .card {
     color: rgba(0,0,0,0.87);
     background-color: rgba(255,255,255, 0.85);
@@ -319,23 +261,107 @@ a:hover.btn.new-entry-btn {
     z-index: 2;
     line-height: 2.5em;
 }
-.day-view-entry-list {
+
+
+/* BODY CONTENT */
+.title .title__date {
+    padding-left: 0;
+}
+.title span span {
+    color: #888;
+    font-weight: 300;
+}
+.day_view {
+    text-align: center;
+    flex-flow: column;
+}
+.btn.new_entry__btn {
+    border-radius: 5px;
+    height: 37px;
+    overflow: visible;
+    text-align: center;
+    width: 65px;
+    background: #50b840;
+    color: #fff;
+    font-weight: 200;
+}
+a:hover.btn.new_entry__btn {
+    color: #fafafa;
+    background: #47a539;
+    text-decoration: none;
+}
+.btn.new_entry__btn span {
+    vertical-align: -webkit-baseline-middle;
+}
+.new_entry__week_navigation {
+    margin: .6em 0;
+}
+.btn.start_timer__btn {
+    background: #dff0d8;
+    color: #47525d;
+    width: 105px;
+    border: 1px solid darkseagreen;
+    margin: 0 1em .3em;
+}
+.btn.start_timer__btn:hover {
+    background: #4fb840;
+    color: #dff0d8;
+}
+.btn.start_timer__btn.is_running {
+    background: red;
+    color: #fff;
+    border: 1px solid red;
+}
+.btn.start_timer__btn span {
+    vertical-align: text-bottom;
+}
+.icon_timer {
+    vertical-align: sub;
+}
+.icon_timer.is_running {
+    animation: rotate 6s infinite linear;
+}
+.icon_timer__face {
+    stroke: #4fb840;
+}
+.icon_timer__hand {
+    fill: #4fb840;
+}
+.day_view__entry .is_running .icon_timer__face {
+    stroke: #fff;
+}
+.day_view__entry .is_running .icon_timer__hand {
+    fill: #fff;
+}
+.btn.start_timer__btn:hover .icon_timer__face {
+    stroke: #dff0d8;
+}
+.btn.start_timer__btn:hover .icon_timer__hand {
+    fill: #dff0d8;
+}
+.btn.start_timer__btn:hover .is_running .icon_timer__face {
+    stroke: #fff;
+}
+.btn.start_timer__btn:hover .is_running .icon_timer__hand {
+    fill: #fff;
+}
+.day_view__entry__list {
     margin-top: 25px;
     min-width: 550px;
 }
-.day-view-entry-list table {
+.day_view__entry__list table {
     width: 100%;
 }
-.day-view-entry {
+.day_view__entry {
     font-size: 13px;
     transition: background 0.1s linear;
     max-width: 800px;
     margin: 1em auto;
 }
-.day-view-entry.is-running {
+.day_view__entry.is_running {
     background: #e5f1f9;
 }
-.day-view-entry td {
+.day_view__entry td {
     color: #444;
     font-size: 14px;
     padding: 5px;
@@ -343,23 +369,23 @@ a:hover.btn.new-entry-btn {
     vertical-align: top;
     word-wrap: break-word;
 }
-.day-view-entry .entry-time {
+.day_view__entry .entry__time {
     font-size: 20px;
     font-weight: 500;
     text-align: right;
     vertical-align: middle;
     width: 11em;
 }
-.day-view-entry .entry-button {
+.day_view__entry .entry__button {
     padding: 0;
     vertical-align: middle;
     width: 90px;
 }
-.day-view-entry .edit-button {
+.day_view__entry .edit_button {
     vertical-align: middle;
     width: 3em;
 }
-.entry-info {
+.entry__info {
     width: 31em;
     padding: 1em;
     text-align: left;
@@ -369,13 +395,13 @@ a:hover.btn.new-entry-btn {
     font: 500 14px/10px 'Roboto',sans-serif;
     letter-spacing: 0;
 }
-.entry-time {
+.entry__time {
     width: 14em;
 }
-.edit-button {
+.edit_button {
     display: table-cell;
 }
-.edit-button a {
+.edit_button a {
     text-decoration: none;
 }
 .banner.main {
@@ -390,19 +416,19 @@ a:hover.btn.new-entry-btn {
 .banner h1 {
 	margin: .8em 0 .4em 0;
 }
-.day-view-week-nav {
+.day_view__week_nav {
     max-width: 800px;
     min-width: 550px;
     margin: 0 auto;
     padding: 0;
 }
-.day-view-week-nav li {
+.day_view__week_nav li {
     display: inline-block;
     margin-right: -4px;
     vertical-align: middle;
     width: 14.2857%;
 }
-.day-view-week-nav .btn {
+.day_view__week_nav .btn {
     width: 100%;
     min-width: 2em;
     line-height: 2.2;
@@ -410,32 +436,22 @@ a:hover.btn.new-entry-btn {
     border-radius: 0;
     border-left: 1px solid rgba(0,0,0,0.08);
 }
-.day-view-week-nav>li:last-child .btn {
+.day_view__week_nav>li:last-child .btn {
     border-top-right-radius: 3px;
 }
-.day-view-week-nav>li:first-child .btn {
+.day_view__week_nav>li:first-child .btn {
     border-top-left-radius: 3px;
     border-left: none;
 }
-.flash {
-    display: flex;
-    justify-content: center;
-}
-.flash ul li strong {
-    color: #2196f3;
-    transition: background 0.5s linear;
-    background: gainsboro;
-    padding: .5em;
-}
-.select-health {
+.select__health {
     background-color: #a2a2a2;
     color: white;
 }
-.select-health:hover {
+.select__health:hover {
     background-color: #a2a2a2;
     color: white;
 }
-.btn.submit-btn {
+.btn.submit__btn {
     background-color: #007bfc;
     color: white;
 }
@@ -445,15 +461,15 @@ a:hover.btn.new-entry-btn {
 .checkbox.form-group input {
     margin: .3em .5em;
 }
-form.confirm-delete {
+form.confirm_delete {
     float: right;
     margin-top: -39px;
 }
-button.entry-delete {
+button.entry__delete {
     color: red;
     cursor: pointer;
 }
-button.entry-delete:hover {
+button.entry__delete:hover {
     color: red;
     text-decoration: underline;
 }

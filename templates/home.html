@@ -15,11 +15,11 @@
 
             // Change styling for current selected nav day
             if (moment(displayDate).isSame(daysOfWeek[i])) {
-                $('ul#day-view-week-nav li a[href='+String(i)+']').addClass('selected')
+                $('ul#day_view__week_nav li a[href='+String(i)+']').addClass('selected')
             }
 
             // Create link for each nav day
-            $('ul#day-view-week-nav li a[href='+String(i)+']').prop('href', flask_util.url_for('showHome', {year: daysOfWeek[i].format('YYYY'), month: daysOfWeek[i].format('M'), day: daysOfWeek[i].format('DD')}));
+            $('ul#day_view__week_nav li a[href='+String(i)+']').prop('href', flask_util.url_for('showHome', {year: daysOfWeek[i].format('YYYY'), month: daysOfWeek[i].format('M'), day: daysOfWeek[i].format('DD')}));
         }
     });
 </script>
@@ -28,7 +28,7 @@
 
     <!-- Title -->
     <div class="row-fluid title">
-        <div class="col-md-8 title-date">
+        <div class="col-md-8 title__date">
             <h1>
                 {{ moment(display_date, local=True).format('dddd') }}
                 <span>{{ moment(display_date, local=True).format('Do MMM') }}</span>
@@ -36,13 +36,13 @@
         </div>
     </div>
 
-    <div class="new-entry-week-navigation">
+    <div class="new_entry__week_navigation">
         <!-- Days of Week Navigation -->
-        <a id="new-entry" class="btn new-entry-btn" href="{{url_for('newEntry', year = display_year, month = display_month, day = display_day)}}">
+        <a id="new_entry" class="btn new_entry__btn" href="{{url_for('newEntry', year = display_year, month = display_month, day = display_day)}}">
             <span>New</span>
         </a>
 
-        <div class="button-toggle">
+        <div class="button__toggle">
             <a class="btn" href="{{url_for('showHome', year = display_year, month = display_month, day = display_day-1)}}">
                 <i class="fa fa-chevron-left"></i>
             </a>
@@ -60,10 +60,10 @@
 </header>
 
 <section>
-    <div class="day-view">
+    <div class="day_view">
 
         <!-- TODO: Add ability to choose by calendar date -->
-        <ul id="day-view-week-nav" class="day-view-week-nav">
+        <ul id="day_view__week_nav" class="day_view__week_nav">
             {% for day in days %}
                 <li>
                     <a class="btn" href="{{ day }}" currentDate="{{ current_date }}">{{ days[day] }}</a>
@@ -71,7 +71,7 @@
             {% endfor %}
         </ul>
 
-        <ul class="day-view-entry-list">
+        <ul class="day_view__entry_list">
             {% for key, entry in entries.items() %}
 
                 {% if key == 'meals' %}
