@@ -36,6 +36,7 @@ $ redis-server
 
 In a different terminal tab, start python web server:
 ```
+# http://localhost:5000
 $ npm start
 ```
 
