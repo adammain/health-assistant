@@ -6,7 +6,7 @@ Track key daily health metrics while building a personalized health database.  T
 
 ## Motivation
 
-When sufficient personal health data has been gathered a (yet to be built) deep learning network will analayze the fed data and output a personalized predictive health analysis.
+When sufficient personal health data has been gathered, a (yet to be built) deep learning network will analayze the fed data and output a personalized predictive health analysis.
 
 ## Installation
 
