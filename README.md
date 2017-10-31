@@ -34,11 +34,6 @@ Start redis-server (https://redis.io/topics/quickstart):
 $ redis-server
 ```
 
-In a different terminal tab, start python web server:
-```
-$ npm start
-```
-
 In a different terminal tab, start application (tested with Python 3):
 ```
 $ python3 app.py
