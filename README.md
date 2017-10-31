@@ -38,12 +38,12 @@ In a different terminal tab, start python web server:
 ```
 $ npm start
 ```
-* Navigate to: http://localhost:5000
 
 In a different terminal tab, start application (tested with Python 3):
 ```
 $ python3 app.py
 ```
+* Navigate to: http://localhost:5000
 
 ## API Reference
 
