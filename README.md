@@ -92,8 +92,8 @@ $ python3 api_tester.py
 ├── requirements.txt # pip package manager file. It's unlikely that you'll need to modify this.
 ├── templates
 │   ├── All html view templates
-└── flask_socketio # Socketio library for flask. Real time updates.
-└── src # flask_util library folder
+└── flask_socketio # Socketio library for flask. Real time updates. (https://github.com/miguelgrinberg/Flask-SocketIO)
+└── src # flask_util library folder (https://github.com/dantezhu/flask_util_js)
 └── static
     ├── styles.css # Styles for app.
     ├── datetime.js # Controls timer and ui functionality
@@ -108,7 +108,7 @@ $ python3 api_tester.py
 ├── forms.py # All of the apps forms.
 ├── helpers.py # Helper functions for forms.
 ├── models.py # DB Database setup
-├── stopwatch.py # Stopwatch helper functions
+├── stopwatch.py # Stopwatch helper functions (https://www.safaribooksonline.com/library/view/python-cookbook-3rd/9781449357337/ch13s13.html)
 ```
 
 ## License
