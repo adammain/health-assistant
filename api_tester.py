@@ -3,14 +3,13 @@ import json
 import sys
 
 print("Running Endpoint Tester....\n")
-address = 'http://localhost:5001'
+address = 'http://localhost:5000'
 
 
 # # Making a POST Request
 print("Making a Meal POST request to /activities...")
 try:
-    url = address
-    + "/activities?type=meal&user_id=1&description=Snickers&duration=0:30&healthy=False&unhealthy=True&starch_rich=False&sucrose_rich=True"
+    url = address + "/activities?type=meal&user_id=1&description=Snickers&duration=0:30&healthy=False&unhealthy=True&starch_rich=False&sucrose_rich=True"
     activity_type = 'meal'
     user_id = 1
     h = httplib2.Http()
@@ -45,7 +44,7 @@ else:
     print("Test 2 PASS: Succesfully Made GET Request to /activities")
 
 
-# # Making GET Requests to /activities/activity_id
+# # Making GET Requests to  /activities/user_id/activity_type/activity_id/
 print("Making GET requests to /activities/user_id/activity_type/activity_id/ ")
 
 try:
@@ -79,10 +78,8 @@ try:
     url = address + \
         "/activities/%s/%s/%s?healthy=True&description=Slimy+soup" % (
             userID, activityTYPE, activityID)
-    print("PUT URL: {}".format(url))
     h = httplib2.Http()
     resp, result = h.request(url, 'PUT')
-    print("RESPONSE: {}, RESULT: {}".format(resp, result))
     if resp['status'] != '200':
         raise Exception(
             'Received an unsuccessful status code of %s' % resp['status'])

@@ -26,7 +26,6 @@ def activitiesFunction():
     if request.method == 'GET':
         # Call the method to Get all of the activities
         user_id = request.args.get('user_id', '')
-        print("USER ID: {}".format(user_id))
         return getAllActivities(user_id)
     elif request.method == 'POST':
         # Call the method to make a new activity
@@ -41,25 +40,13 @@ def activitiesFunction():
             unhealthy = request.args.get('unhealthy', '')
             starch_rich = request.args.get('starch_rich', '')
             sucrose_rich = request.args.get('sucrose_rich', '')
-            print(user_id)
-            print(activity_type)
-            print(description)
-            print(duration)
-            print(healthy)
-            print(unhealthy)
-            print(starch_rich)
-            print(sucrose_rich)
             return makeANewMeal(user_id, description, duration, healthy,
                                 unhealthy, starch_rich, sucrose_rich)
         elif activity_type == 'sleep':
             description = request.args.get('description', '')
-            print(activity_type)
-            print(description)
             return makeANewSleep(activity_type, description)
         elif activity_type == 'workout':
             description = request.args.get('description', '')
-            print(activity_type)
-            print(description)
             return makeANewSleep(activity_type, description)
 
 
@@ -91,10 +78,12 @@ def activitiesFunctionId(user_id, activity_type, activity_id):
 def getAllActivities(user_id):
     session.close()
     try:
-        meals = session.query(Meal).filter_by(user_id=user_id).all()
-        sleep_sessions = session.query(
-            Sleep).filter_by(user_id=user_id).all()
-        workouts = session.query(Workout).filter_by(user_id=user_id).all()
+        meals = session.query(Meal) \
+            .filter_by(user_id=user_id).all()
+        sleep_sessions = session.query(Sleep) \
+            .filter_by(user_id=user_id).all()
+        workouts = session.query(Workout) \
+            .filter_by(user_id=user_id).all()
     except:
         session.rollback()
         raise
@@ -199,8 +188,9 @@ def deleteActivity(user_id, activity_type, activity_id):
     for key, Model in Models.items():
         if key == activity_type:
             try:
-                activity = session.query(Model).filter_by(
-                    user_id=user_id).filter_by(id=activity_id).one()
+                activity = session.query(Model) \
+                    .filter_by(user_id=user_id) \
+                    .filter_by(id=activity_id).one()
                 print("FOUND ACTIVITY TO DELETE: {}".format(activity.id))
             except:
                 session.rollback()
@@ -222,4 +212,4 @@ def deleteActivity(user_id, activity_type, activity_id):
 
 if __name__ == '__main__':
     app.debug = False
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5000)
