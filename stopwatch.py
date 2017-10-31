@@ -1,3 +1,5 @@
+# # Customized stopwatch inspired from python book:
+# # Python Cookbook, 3rd Edition by Brian K. Jones, David Beazley
 import time
 
 
