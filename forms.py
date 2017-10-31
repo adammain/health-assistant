@@ -47,11 +47,11 @@ class WorkoutForm(FlaskForm):
     workout_type = RadioField('Workout Type', choices=[
         ('interval', 'Interval'),
         ('endurance', 'Endurance'),
-    ])
+    ], default='interval')
     intensity = RadioField('Intensity', choices=[
         ('intense', 'Intense'),
         ('light', 'Light'),
-    ])
+    ], default='intense')
     submit_workout = SubmitField('Submit Workout')
 
 

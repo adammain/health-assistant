@@ -38,28 +38,28 @@ $(document).ready(function() {
         console.log("Clicked Button #", clickedTimerID)
         console.log("ClickedButtonParentList: ", clickedButtonParentList)
         console.log("clickedButtonA: ", clickedButtonA)
-        if (clickedButtonA.hasClass('is-running')) {
+        if (clickedButtonA.hasClass('is_running')) {
             console.log("Clicked Timer Already Running.  Stopping Timer #", clickedTimerID)
             // if "clicked timer" is running, stop it
             clickedButtonA.text('Start')
-            $("button.is-running > svg").removeClass("is-running");
-            clickedButtonA.removeClass('is-running')
-            clickedButtonA.parentsUntil('div.container').removeClass('is-running')
+            $("button.is_running > svg").removeClass("is_running");
+            clickedButtonA.removeClass('is_running')
+            clickedButtonA.parentsUntil('div.container').removeClass('is_running')
             socket.emit('deactivate_timer', {type: clickedTimerType, room: $(this).attr('value')});
             $('#log').append('<br>' + $('<div/>').text('Client Sent Stop Timer Request..' + clickedTimerType + $(this).attr('value')).html());
             startClickedTimer = false;  // Clicked timer was running, stopped. Next time clicked, start.
-        } else if (clickedButtonParentList.siblings('li').hasClass('is-running')) {
+        } else if (clickedButtonParentList.siblings('li').hasClass('is_running')) {
             // if another timer is running, stop it
-            runningTimerList = clickedButtonParentList.siblings('li.is-running')
+            runningTimerList = clickedButtonParentList.siblings('li.is_running')
             runningTimerForm = runningTimerList.find('form#timer')
             runningTimerType = runningTimerForm.attr('type')
             runningTimerID = runningTimerForm.attr('value')
             console.log("Other Timer Already Running.  Stopping Timer #", runningTimerID)
-            runningTimerBtn = runningTimerForm.find('span.is-running')
+            runningTimerBtn = runningTimerForm.find('span.is_running')
             runningTimerBtn.text('Start')
-            $("button.is-running > svg").removeClass("is-running");
-            runningTimerBtn.removeClass('is-running')
-            runningTimerBtn.parentsUntil('div.container').removeClass('is-running')
+            $("button.is_running > svg").removeClass("is_running");
+            runningTimerBtn.removeClass('is_running')
+            runningTimerBtn.parentsUntil('div.container').removeClass('is_running')
             socket.emit('deactivate_timer', {type: runningTimerType, room: runningTimerID});
             $('#log').append('<br>' + $('<div/>').text('Client Sent Stop Timer Request..' + runningTimerType + runningTimerID).html());
             startClickedTimer = true;
@@ -70,9 +70,9 @@ $(document).ready(function() {
             console.log("Started Timer #", clickedTimerID);
             console.log("Click Timer TYPE", clickedTimerType);
             clickedButtonA.text('Stop');
-            clickedButtonA.addClass('is-running');
-            clickedButtonA.parentsUntil('div.container').addClass('is-running');
-            $("button.is-running > svg").addClass("is-running");
+            clickedButtonA.addClass('is_running');
+            clickedButtonA.parentsUntil('div.container').addClass('is_running');
+            $("button.is_running > svg").addClass("is_running");
             socket.emit('activate_timer', {type: clickedTimerType, room: clickedTimerID});
             $('#log').append('<br>' + $('<div/>').text('Client Sent Start Timer Request.. ' + clickedTimerType + $(this).attr('value')).html());
         }
@@ -91,9 +91,9 @@ $(document).ready(function() {
             console.log("ACTIVE TIMER ID:", activeTimerID)
             activeTimerBtn = $('#timer_btn_text_'+activeTimerID);
             activeTimerBtn.text('Stop')
-            activeTimerBtn.addClass('is-running')
-            activeTimerBtn.parentsUntil('div.container').addClass('is-running')
-            $("button.is-running > svg").addClass("is-running");
+            activeTimerBtn.addClass('is_running')
+            activeTimerBtn.parentsUntil('div.container').addClass('is_running')
+            $("button.is_running > svg").addClass("is_running");
             $('#log').append('<br>' + $('<div/>').text('Client Sent Start Timer Request.. ' + activeTimerID).html());
             pageReloadedTimerResponse = false
         }
