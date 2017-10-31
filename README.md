@@ -13,7 +13,7 @@ When sufficient personal health data has been gathered, a (yet to be built) deep
 *** TESTED WITH PYTHON 3
 
 ```
-$ git clone git@github.com:amtruenorth/react-myreads.git
+$ git clone git@github.com:amtruenorth/health-assistant.git
 
 $ cd health-assistant/
 ```
