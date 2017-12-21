@@ -962,4 +962,4 @@ def deleteActivity(user_id, activity_type, activity_id):
 
 # TODO: UPDATE SUPER SECRET KEY TO app.config
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', debug=True)
+    socketio.run(app, debug=True)
