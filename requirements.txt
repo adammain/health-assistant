@@ -12,5 +12,9 @@ Werkzeug==0.12.2
 Flask-SQLAlchemy
 Flask-WTF
 flask-moment
+requests
+babel
+oauth2client
+redis
 -e git://github.com/dantezhu/flask_util_js.git#egg=flask_util_js
 
